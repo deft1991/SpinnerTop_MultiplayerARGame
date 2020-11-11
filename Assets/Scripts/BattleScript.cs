@@ -34,6 +34,7 @@ public class BattleScript : MonoBehaviourPun
     private float _defaultSpeedDamage = 3600f;
     private GameObject _deathPanelGameObject;
     private bool isDead = false;
+    private bool isWinner = false;
 
 
     private void Awake()
@@ -111,7 +112,8 @@ public class BattleScript : MonoBehaviourPun
                 // check that gameObject isMine
                 // if we do not check it, we will damage players as many as we have users in the room
                 // RPC call will execute for app players in the room
-                if (collision.collider.gameObject.GetComponent<PhotonView>().IsMine)
+                if (collision.collider.gameObject.GetComponent<PhotonView>().IsMine && !isDead
+                ) // damage if we are not die =)
                 {
                     // Apply damage to slower player.
                     // RpcTarget.AllBuffered - means send to all players in the room and to players who connected later
@@ -119,6 +121,11 @@ public class BattleScript : MonoBehaviourPun
                     collision.collider.gameObject.GetComponent<PhotonView>()
                         .RPC("DoDamage", RpcTarget.AllBuffered, defaultDamageAmount);
                 }
+            }
+            else if (!collision.collider.gameObject.GetComponent<PhotonView>().IsMine && isDead)
+            {
+                collision.collider.gameObject.GetComponent<PhotonView>()
+                    .RPC("Reborn", RpcTarget.AllBuffered);
             }
         }
     }
@@ -148,26 +155,24 @@ public class BattleScript : MonoBehaviourPun
     public void DoDamage(float damageAmount)
     {
         // do damage only if player alive
-        if (isDead)
+        if (!isDead)
         {
-            return;
-        }
+            damageAmount = CalculateDamageAmount(damageAmount);
+            damageAmount = CrunchIfBothAttackers(damageAmount);
 
-        damageAmount = CalculateDamageAmount(damageAmount);
-        damageAmount = CrunchIfBothAttackers(damageAmount);
+            spinnerScript.spinnerSpeed -= damageAmount;
+            // update current speed
+            _currentSpinSpeed = spinnerScript.spinnerSpeed;
+            spinSpeedBarImage.fillAmount = _currentSpinSpeed / _starSpinSpeed;
+            // ToString("F0") - without fractional part
+            spinSpeedRatioText.text = _currentSpinSpeed.ToString("F0") + "/" + _starSpinSpeed;
 
-        spinnerScript.spinnerSpeed -= damageAmount;
-        // update current speed
-        _currentSpinSpeed = spinnerScript.spinnerSpeed;
-        spinSpeedBarImage.fillAmount = _currentSpinSpeed / _starSpinSpeed;
-        // ToString("F0") - without fractional part
-        spinSpeedRatioText.text = _currentSpinSpeed.ToString("F0") + "/" + _starSpinSpeed;
-
-        // if current speed less than 100
-        if (_currentSpinSpeed < 100)
-        {
-            Die();
-            RestoreHpToWinner();
+            // if current speed less than 100
+            if (_currentSpinSpeed < 100)
+            {
+                Die();
+                // RestoreHpToWinner();
+            }
         }
     }
 
@@ -202,6 +207,7 @@ public class BattleScript : MonoBehaviourPun
     private void Die()
     {
         isDead = true;
+        isWinner = false;
         // disable movement controller
         gameObject.GetComponent<MovementController>().enabled = false;
 
@@ -221,9 +227,37 @@ public class BattleScript : MonoBehaviourPun
         }
     }
 
-    private void RestoreHpToWinner()
+    IEnumerator ReSpawnCountDown2()
     {
-        throw new System.NotImplementedException();
+        GameObject canvasGameObject = GameObject.Find("Canvas");
+
+        if (_deathPanelGameObject == null)
+        {
+            _deathPanelGameObject = Instantiate(deathPanelUiPrefab, canvasGameObject.transform);
+        }
+        else
+        {
+            _deathPanelGameObject.SetActive(true);
+        }
+
+        Text respawnTimeText = _deathPanelGameObject.transform.Find("RespawnTimeText").GetComponent<Text>();
+
+        float respawnTime = 20;
+        respawnTimeText.text = "WIN " + respawnTime.ToString(".00");
+        while (respawnTime > 0)
+        {
+            yield return new WaitForSeconds(1.0F);
+            respawnTime--;
+            respawnTimeText.text = respawnTime.ToString(".00");
+
+            GetComponent<MovementController>().enabled = false;
+        }
+
+        _deathPanelGameObject.SetActive(false);
+        GetComponent<MovementController>().enabled = true;
+
+        // // after die and respawn time count down, we should respawn our player
+        // photonView.RPC("Reborn", RpcTarget.AllBuffered);
     }
 
     IEnumerator ReSpawnCountDown()
@@ -242,7 +276,7 @@ public class BattleScript : MonoBehaviourPun
         Text respawnTimeText = _deathPanelGameObject.transform.Find("RespawnTimeText").GetComponent<Text>();
 
         float respawnTime = 8;
-        // respawnTimeText.text = respawnTime.ToString(".00");
+        respawnTimeText.text = respawnTime.ToString(".00");
         while (respawnTime > 0)
         {
             yield return new WaitForSeconds(1.0F);
