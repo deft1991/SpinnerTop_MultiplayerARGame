@@ -35,9 +35,8 @@ public class BattleScript : MonoBehaviourPun
     private float _defaultSpeedDamage = 3600f;
     private GameObject _deathPanelGameObject;
     private bool _isDead = false;
-    
 
-    
+
     private void Awake()
     {
         // get start spinner speed from spinner script
@@ -72,7 +71,6 @@ public class BattleScript : MonoBehaviourPun
 
     private void CheckIsBot()
     {
-        
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -128,7 +126,12 @@ public class BattleScript : MonoBehaviourPun
                         .RPC("DoDamage", RpcTarget.AllBuffered, defaultDamageAmount);
                 }
             }
-            else if (!collision.collider.gameObject.GetComponent<PhotonView>().IsMine && _isDead)
+            else if (!collision.collider.gameObject.GetComponent<PhotonView>().IsMine && _isDead) // restore hp for winner
+            {
+                collision.collider.gameObject.GetComponent<PhotonView>()
+                    .RPC("Reborn", RpcTarget.AllBuffered);
+            } 
+            else if (collision.collider.gameObject.GetComponent<PhotonView>().IsMine && _isDead && isBot) // restore hp for winner with BOT game
             {
                 collision.collider.gameObject.GetComponent<PhotonView>()
                     .RPC("Reborn", RpcTarget.AllBuffered);
@@ -234,7 +237,7 @@ public class BattleScript : MonoBehaviourPun
         if (isBot)
         {
             Debug.Log("Bot DIE!");
-            Destroy(gameObject);
+            StartCoroutine(RebornBot(8));
         }
     }
 
@@ -287,6 +290,30 @@ public class BattleScript : MonoBehaviourPun
         // reactivate 3D UI
         ui3DGameObject.SetActive(true);
 
+        _isDead = false;
+    }
+
+    IEnumerator RebornBot(float sec)
+    {
+        while (sec > 0)
+        {
+            yield return new WaitForSeconds(1.0F);
+            sec--;
+        }
+        
+        spinnerScript.spinnerSpeed = _starSpinSpeed;
+        _currentSpinSpeed = _starSpinSpeed;
+            
+        spinSpeedBarImage.fillAmount = _currentSpinSpeed / _starSpinSpeed;
+        spinSpeedRatioText.text = _currentSpinSpeed + "/" + _starSpinSpeed;
+            
+        // reactivate freeze rotation
+        _rigidbody.freezeRotation = true;
+        transform.rotation = Quaternion.Euler(Vector3.zero);
+            
+        // reactivate 3D UI
+        ui3DGameObject.SetActive(true);
+            
         _isDead = false;
     }
 
