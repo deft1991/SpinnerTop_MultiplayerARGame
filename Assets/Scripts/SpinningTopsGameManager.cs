@@ -1,8 +1,10 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using Photon.Pun;
 using Photon.Realtime;
 using TMPro;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class SpinningTopsGameManager : MonoBehaviourPunCallbacks
 {
@@ -11,6 +13,11 @@ public class SpinningTopsGameManager : MonoBehaviourPunCallbacks
     public GameObject searchForGamesButtonObject;
     public GameObject adjustButton;
     public GameObject raycastCenterImage;
+    public SpawnManager spawnManager;
+
+    private DateTime _joinNewRoomTime;
+    private bool _isBotSpawned = false;
+
 
     // Start is called before the first frame update
     void Start()
@@ -32,7 +39,6 @@ public class SpinningTopsGameManager : MonoBehaviourPunCallbacks
         PhotonNetwork.JoinRandomRoom();
 
         searchForGamesButtonObject.SetActive(false);
-        
     }
 
     public void OnClickQuitMatch()
@@ -66,11 +72,15 @@ public class SpinningTopsGameManager : MonoBehaviourPunCallbacks
     {
         adjustButton.SetActive(false);
         raycastCenterImage.SetActive(false);
-        
+
+        // fix our time if we 1st player in the room
+        // after 5 seconds - add bot
         if (PhotonNetwork.CurrentRoom.PlayerCount == 1)
         {
+            _joinNewRoomTime = DateTime.UtcNow;
             uiInformText.text = "Joined to " + PhotonNetwork.CurrentRoom.Name
                                              + ". Waiting for other players...";
+            StartCoroutine(SpawnBotAfterSeconds(5f));
         }
         else
         {
@@ -106,10 +116,7 @@ public class SpinningTopsGameManager : MonoBehaviourPunCallbacks
     private void CreateAndJoinRoom()
     {
         string randomRoomName = "Room " + Random.Range(0, 100000);
-        RoomOptions roomOptions = new RoomOptions();
-        roomOptions.IsOpen = true;
-        roomOptions.IsVisible = true;
-        roomOptions.MaxPlayers = 3;
+        RoomOptions roomOptions = new RoomOptions {IsOpen = true, IsVisible = true, MaxPlayers = 3};
 
         // Creating Room 
         PhotonNetwork.CreateRoom(randomRoomName, roomOptions); // creates and join to room
@@ -119,6 +126,19 @@ public class SpinningTopsGameManager : MonoBehaviourPunCallbacks
     {
         yield return new WaitForSeconds(seconds);
         gameObjectForDeactivate.SetActive(false);
+    }
+
+
+    IEnumerator SpawnBotAfterSeconds(float seconds)
+    {
+        yield return new WaitForSeconds(seconds);
+        StartCoroutine(DeactivateAfterSeconds(uiInformPanelGameObject, 2));
+        // if we wait seconds in the room create bot
+        if (PhotonNetwork.CurrentRoom.PlayerCount == 1)
+        {
+            // set bot in the room
+            spawnManager.SpawnBot();
+        }
     }
 
     #endregion

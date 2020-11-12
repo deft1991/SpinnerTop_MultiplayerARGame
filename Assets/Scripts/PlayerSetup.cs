@@ -11,7 +11,7 @@ public class PlayerSetup : MonoBehaviourPun
     // Start is called before the first frame update
     void Start()
     {
-        if (photonView.IsMine) // if it`s me
+        if (photonView.IsMine && photonView.enabled) // if it`s me
         {
             // The player is local player
             SetEnableToMovementController(true);

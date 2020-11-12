@@ -1589,6 +1589,7 @@ MonoBehaviour:
   searchForGamesButtonObject: {fileID: 623289035}
   adjustButton: {fileID: 905712417}
   raycastCenterImage: {fileID: 1715940916}
+  spawnManager: {fileID: 1066191264}
 --- !u!4 &804357502
 Transform:
   m_ObjectHideFlags: 0

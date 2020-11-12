@@ -15,6 +15,7 @@ public class BattleScript : MonoBehaviourPun
     public float commonDamageCoefficient = 0.04F;
     public bool isAttacker;
     public bool isDefender;
+    public bool isBot = false;
 
     public List<GameObject> pooledObjects;
     public int amountToPool = 8;
@@ -33,10 +34,10 @@ public class BattleScript : MonoBehaviourPun
     private float _currentSpinSpeed;
     private float _defaultSpeedDamage = 3600f;
     private GameObject _deathPanelGameObject;
-    private bool isDead = false;
-    private bool isWinner = false;
+    private bool _isDead = false;
+    
 
-
+    
     private void Awake()
     {
         // get start spinner speed from spinner script
@@ -67,6 +68,11 @@ public class BattleScript : MonoBehaviourPun
 
             spinSpeedRatioText.text = _currentSpinSpeed + "/" + _starSpinSpeed;
         }
+    }
+
+    private void CheckIsBot()
+    {
+        
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -112,7 +118,7 @@ public class BattleScript : MonoBehaviourPun
                 // check that gameObject isMine
                 // if we do not check it, we will damage players as many as we have users in the room
                 // RPC call will execute for app players in the room
-                if (collision.collider.gameObject.GetComponent<PhotonView>().IsMine && !isDead
+                if (collision.collider.gameObject.GetComponent<PhotonView>().IsMine && !_isDead
                 ) // damage if we are not die =)
                 {
                     // Apply damage to slower player.
@@ -122,7 +128,7 @@ public class BattleScript : MonoBehaviourPun
                         .RPC("DoDamage", RpcTarget.AllBuffered, defaultDamageAmount);
                 }
             }
-            else if (!collision.collider.gameObject.GetComponent<PhotonView>().IsMine && isDead)
+            else if (!collision.collider.gameObject.GetComponent<PhotonView>().IsMine && _isDead)
             {
                 collision.collider.gameObject.GetComponent<PhotonView>()
                     .RPC("Reborn", RpcTarget.AllBuffered);
@@ -155,7 +161,7 @@ public class BattleScript : MonoBehaviourPun
     public void DoDamage(float damageAmount)
     {
         // do damage only if player alive
-        if (!isDead)
+        if (!_isDead)
         {
             damageAmount = CalculateDamageAmount(damageAmount);
             damageAmount = CrunchIfBothAttackers(damageAmount);
@@ -206,8 +212,7 @@ public class BattleScript : MonoBehaviourPun
 
     private void Die()
     {
-        isDead = true;
-        isWinner = false;
+        _isDead = true;
         // disable movement controller
         gameObject.GetComponent<MovementController>().enabled = false;
 
@@ -225,39 +230,6 @@ public class BattleScript : MonoBehaviourPun
             // countdown for respawn
             StartCoroutine(ReSpawnCountDown());
         }
-    }
-
-    IEnumerator ReSpawnCountDown2()
-    {
-        GameObject canvasGameObject = GameObject.Find("Canvas");
-
-        if (_deathPanelGameObject == null)
-        {
-            _deathPanelGameObject = Instantiate(deathPanelUiPrefab, canvasGameObject.transform);
-        }
-        else
-        {
-            _deathPanelGameObject.SetActive(true);
-        }
-
-        Text respawnTimeText = _deathPanelGameObject.transform.Find("RespawnTimeText").GetComponent<Text>();
-
-        float respawnTime = 20;
-        respawnTimeText.text = "WIN " + respawnTime.ToString(".00");
-        while (respawnTime > 0)
-        {
-            yield return new WaitForSeconds(1.0F);
-            respawnTime--;
-            respawnTimeText.text = respawnTime.ToString(".00");
-
-            GetComponent<MovementController>().enabled = false;
-        }
-
-        _deathPanelGameObject.SetActive(false);
-        GetComponent<MovementController>().enabled = true;
-
-        // // after die and respawn time count down, we should respawn our player
-        // photonView.RPC("Reborn", RpcTarget.AllBuffered);
     }
 
     IEnumerator ReSpawnCountDown()
@@ -309,13 +281,15 @@ public class BattleScript : MonoBehaviourPun
         // reactivate 3D UI
         ui3DGameObject.SetActive(true);
 
-        isDead = false;
+        _isDead = false;
     }
 
     // Start is called before the first frame update
     void Start()
     {
         CheckPlayerType();
+
+        CheckIsBot();
 
         _rigidbody = GetComponent<Rigidbody>();
 

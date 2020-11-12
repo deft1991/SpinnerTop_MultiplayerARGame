@@ -55,18 +55,6 @@ public class SpawnManager : MonoBehaviourPunCallbacks
     {
         if (PhotonNetwork.IsConnectedAndReady)
         {
-            // if (PhotonNetwork.LocalPlayer.CustomProperties.TryGetValue(
-            //     MultiplayerArSpinnerTopGame.PLAYER_SELECTION_NUMBER, out var playerSelectionNumber))
-            // {
-            //      
-            //     Debug.Log("Player selection number is " + (int) playerSelectionNumber);
-            //     int randomSpawnPosition = Random.Range(0, spawnPositions.Length - 1);
-            //     Vector3 instantiatePosition = spawnPositions[randomSpawnPosition].position;
-            //     
-            //     PhotonNetwork.Instantiate(playerPrefabs[(int) playerSelectionNumber].name,
-            //         instantiatePosition, Quaternion.identity);
-            // }
-            
             SpawnPlayer();
         }
     }
@@ -132,6 +120,38 @@ public class SpawnManager : MonoBehaviourPunCallbacks
                 Destroy(playerGameObject);
             }
         }
+    }
+
+    public void SpawnBot()
+    {
+        // create random selection bot prefab
+        float botSelectionNumber = Random.Range(0, playerPrefabs.Length);
+        Debug.Log("Bot selection number is " + (int) botSelectionNumber);
+        int randomSpawnPosition = Random.Range(0, spawnPositions.Length - 1);
+        Vector3 instantiatePosition = spawnPositions[randomSpawnPosition].position;
+
+        // instantiate playerGameObject from prefab arr, position from spawn positions and Quaternion from prefab
+        GameObject botGameObject = Instantiate(playerPrefabs[(int) botSelectionNumber], instantiatePosition,
+            Quaternion.identity);
+        botGameObject.GetComponent<BattleScript>().isBot = true;
+        botGameObject.GetComponent<MovementController>().enabled = false;
+        botGameObject.GetComponent<MovementController>().enabled = false;
+        botGameObject.GetComponent<MovementController>().joystick.gameObject.SetActive(false);
+        // PhotonView attached to all game models
+        PhotonView photonView = botGameObject.GetComponent<PhotonView>();
+        photonView.enabled = false;
+        // PhotonNetwork.AllocateViewID - create and assign new viewId to displays photonView
+        if (PhotonNetwork.AllocateViewID(photonView))
+        {
+            
+        }
+        else
+        {
+            // if we failed allocate viewId we will then destroy the object
+            Debug.Log("Failed to allocate a viewId");
+            Destroy(botGameObject);
+        }
+        
     }
 
     private void OnDestroy()
