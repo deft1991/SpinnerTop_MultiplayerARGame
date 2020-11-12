@@ -363,6 +363,7 @@ GameObject:
   - component: {fileID: 580966311229966545}
   - component: {fileID: 5191570981432649432}
   - component: {fileID: 6219421836381677413}
+  - component: {fileID: 1224646738293863245}
   m_Layer: 0
   m_Name: Player4_Defender
   m_TagString: Player
@@ -471,6 +472,7 @@ MonoBehaviour:
   speed: 5
   maxVelocityChange: 5
   tiltAmount: 5
+  isBot: 0
 --- !u!114 &6426349244121738067
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -559,6 +561,7 @@ MonoBehaviour:
   commonDamageCoefficient: 0.04
   isAttacker: 0
   isDefender: 0
+  isBot: 0
   pooledObjects: []
   amountToPool: 8
   collisionEffectPrefab: {fileID: 2219976250570092787, guid: 5137643b3ee47464683aaeed745c7403,
@@ -567,6 +570,22 @@ MonoBehaviour:
   getDamagedCoefficientAttacker: 1.2
   doDamageCoefficientDefender: 0.75
   getDamagedCoefficientDefender: 0.2
+--- !u!114 &1224646738293863245
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4663518797756989780}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31aed2cbb412b4f349163217f5cea43c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  speed: 5
+  maxVelocityChange: 5
+  tiltAmount: 5
+  isBot: 0
 --- !u!1 &4663518798063194202
 GameObject:
   m_ObjectHideFlags: 0
@@ -1146,15 +1165,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f19d6ba5e6a078f44891bc6dbe03b3aa, type: 3}
---- !u!1 &7900149118487980626 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7188070282852900453, guid: f19d6ba5e6a078f44891bc6dbe03b3aa,
-    type: 3}
-  m_PrefabInstance: {fileID: 1036901117871158327}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &8923521933065690949 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8481799796529818482, guid: f19d6ba5e6a078f44891bc6dbe03b3aa,
+    type: 3}
+  m_PrefabInstance: {fileID: 1036901117871158327}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &7900149118487980626 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7188070282852900453, guid: f19d6ba5e6a078f44891bc6dbe03b3aa,
     type: 3}
   m_PrefabInstance: {fileID: 1036901117871158327}
   m_PrefabAsset: {fileID: 0}

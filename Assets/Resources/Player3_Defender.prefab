@@ -404,6 +404,7 @@ GameObject:
   - component: {fileID: 8116146866412514976}
   - component: {fileID: 8924411195469064975}
   - component: {fileID: 2887621751144857554}
+  - component: {fileID: 7223721255566392395}
   m_Layer: 0
   m_Name: Player3_Defender
   m_TagString: Player
@@ -512,6 +513,7 @@ MonoBehaviour:
   speed: 5
   maxVelocityChange: 5
   tiltAmount: 5
+  isBot: 0
 --- !u!114 &8478436014703928242
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -600,6 +602,7 @@ MonoBehaviour:
   commonDamageCoefficient: 0.04
   isAttacker: 0
   isDefender: 0
+  isBot: 0
   pooledObjects: []
   amountToPool: 8
   collisionEffectPrefab: {fileID: 2219976250570092787, guid: 5137643b3ee47464683aaeed745c7403,
@@ -608,6 +611,22 @@ MonoBehaviour:
   getDamagedCoefficientAttacker: 1.2
   doDamageCoefficientDefender: 0.75
   getDamagedCoefficientDefender: 0.2
+--- !u!114 &7223721255566392395
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2269595059983960058}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31aed2cbb412b4f349163217f5cea43c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  speed: 5
+  maxVelocityChange: 5
+  tiltAmount: 5
+  isBot: 0
 --- !u!1 &2269595060150874238
 GameObject:
   m_ObjectHideFlags: 0

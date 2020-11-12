@@ -15,7 +15,7 @@ public class BattleScript : MonoBehaviourPun
     public float commonDamageCoefficient = 0.04F;
     public bool isAttacker;
     public bool isDefender;
-    public bool isBot = false;
+    public bool isBot;
 
     public List<GameObject> pooledObjects;
     public int amountToPool = 8;
@@ -36,6 +36,166 @@ public class BattleScript : MonoBehaviourPun
     private GameObject _deathPanelGameObject;
     private bool _isDead = false;
 
+    // Start is called before the first frame update
+    void Start()
+    {
+        CheckPlayerType();
+
+        _rigidbody = GetComponent<Rigidbody>();
+
+        if (photonView.IsMine)
+        {
+            // instantiate 8 collision gameObjects, which contains visual and sounds effects together
+            // And we do it only for local player. We don`t want instantiate it twice
+            // Then add this objects to list and deactivate them.
+            pooledObjects = new List<GameObject>();
+            for (int i = 0; i < amountToPool; i++)
+            {
+                GameObject obj = Instantiate(collisionEffectPrefab, Vector3.zero, Quaternion.identity);
+                obj.SetActive(false);
+                pooledObjects.Add(obj);
+            }
+        }
+    }
+
+    /**
+     * When collision happens we try to grab a Collision game object from existing
+     * de-activated Collision game objects
+     */
+    public GameObject GetPooledObject()
+    {
+        for (int i = 0; i < pooledObjects.Count; i++)
+        {
+            if (!pooledObjects[i].activeInHierarchy)
+            {
+                return pooledObjects[i];
+            }
+        }
+
+        return null;
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+    }
+
+    #region CORUTINE Methods
+
+    IEnumerator ReSpawnCountDown()
+    {
+        GameObject canvasGameObject = GameObject.Find("Canvas");
+
+        if (_deathPanelGameObject == null)
+        {
+            _deathPanelGameObject = Instantiate(deathPanelUiPrefab, canvasGameObject.transform);
+        }
+        else
+        {
+            _deathPanelGameObject.SetActive(true);
+        }
+
+        Text respawnTimeText = _deathPanelGameObject.transform.Find("RespawnTimeText").GetComponent<Text>();
+
+        float respawnTime = 8;
+        respawnTimeText.text = respawnTime.ToString(".00");
+        while (respawnTime > 0)
+        {
+            yield return new WaitForSeconds(1.0F);
+            respawnTime--;
+            respawnTimeText.text = respawnTime.ToString(".00");
+
+            GetComponent<MovementController>().enabled = false;
+        }
+
+        _deathPanelGameObject.SetActive(false);
+        GetComponent<MovementController>().enabled = true;
+
+        // after die and respawn time count down, we should respawn our player
+        photonView.RPC("Reborn", RpcTarget.AllBuffered);
+    }
+
+
+    IEnumerator RebornBot(float sec)
+    {
+        while (sec > 0)
+        {
+            yield return new WaitForSeconds(1.0F);
+            sec--;
+        }
+
+        spinnerScript.spinnerSpeed = _starSpinSpeed;
+        _currentSpinSpeed = _starSpinSpeed;
+
+        spinSpeedBarImage.fillAmount = _currentSpinSpeed / _starSpinSpeed;
+        spinSpeedRatioText.text = _currentSpinSpeed + "/" + _starSpinSpeed;
+
+        // reactivate freeze rotation
+        _rigidbody.freezeRotation = true;
+        transform.rotation = Quaternion.Euler(Vector3.zero);
+
+        // reactivate 3D UI
+        ui3DGameObject.SetActive(true);
+
+        _isDead = false;
+    }
+
+    IEnumerator DeactivateAfterSeconds(GameObject mGameObject, float seconds)
+    {
+        yield return new WaitForSeconds(seconds);
+        mGameObject.SetActive(false);
+    }
+
+    #endregion
+
+    #region PUN methods
+
+    [PunRPC]
+    private void Reborn()
+    {
+        spinnerScript.spinnerSpeed = _starSpinSpeed;
+        _currentSpinSpeed = _starSpinSpeed;
+
+        spinSpeedBarImage.fillAmount = _currentSpinSpeed / _starSpinSpeed;
+        spinSpeedRatioText.text = _currentSpinSpeed + "/" + _starSpinSpeed;
+
+        // reactivate freeze rotation
+        _rigidbody.freezeRotation = true;
+        transform.rotation = Quaternion.Euler(Vector3.zero);
+
+        // reactivate 3D UI
+        ui3DGameObject.SetActive(true);
+
+        _isDead = false;
+    }
+
+    [PunRPC]
+    public void DoDamage(float damageAmount)
+    {
+        // do damage only if player alive
+        if (!_isDead)
+        {
+            damageAmount = CalculateDamageAmount(damageAmount);
+            damageAmount = CrunchIfBothAttackers(damageAmount);
+
+            spinnerScript.spinnerSpeed -= damageAmount;
+            // update current speed
+            _currentSpinSpeed = spinnerScript.spinnerSpeed;
+            spinSpeedBarImage.fillAmount = _currentSpinSpeed / _starSpinSpeed;
+            // ToString("F0") - without fractional part
+            spinSpeedRatioText.text = _currentSpinSpeed.ToString("F0") + "/" + _starSpinSpeed;
+
+            // if current speed less than 100
+            if (_currentSpinSpeed < 100)
+            {
+                Die();
+            }
+        }
+    }
+
+    #endregion
+
+    #region PRIVATE Methods
 
     private void Awake()
     {
@@ -67,10 +227,6 @@ public class BattleScript : MonoBehaviourPun
 
             spinSpeedRatioText.text = _currentSpinSpeed + "/" + _starSpinSpeed;
         }
-    }
-
-    private void CheckIsBot()
-    {
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -126,12 +282,14 @@ public class BattleScript : MonoBehaviourPun
                         .RPC("DoDamage", RpcTarget.AllBuffered, defaultDamageAmount);
                 }
             }
-            else if (!collision.collider.gameObject.GetComponent<PhotonView>().IsMine && _isDead) // restore hp for winner
+            else if (!collision.collider.gameObject.GetComponent<PhotonView>().IsMine && _isDead
+            ) // restore hp for winner
             {
                 collision.collider.gameObject.GetComponent<PhotonView>()
                     .RPC("Reborn", RpcTarget.AllBuffered);
-            } 
-            else if (collision.collider.gameObject.GetComponent<PhotonView>().IsMine && _isDead && isBot) // restore hp for winner with BOT game
+            }
+            else if (collision.collider.gameObject.GetComponent<PhotonView>().IsMine && _isDead && isBot
+            ) // restore hp for winner with BOT game
             {
                 collision.collider.gameObject.GetComponent<PhotonView>()
                     .RPC("Reborn", RpcTarget.AllBuffered);
@@ -158,31 +316,6 @@ public class BattleScript : MonoBehaviourPun
         }
 
         return defaultDamageAmount;
-    }
-
-    [PunRPC]
-    public void DoDamage(float damageAmount)
-    {
-        // do damage only if player alive
-        if (!_isDead)
-        {
-            damageAmount = CalculateDamageAmount(damageAmount);
-            damageAmount = CrunchIfBothAttackers(damageAmount);
-
-            spinnerScript.spinnerSpeed -= damageAmount;
-            // update current speed
-            _currentSpinSpeed = spinnerScript.spinnerSpeed;
-            spinSpeedBarImage.fillAmount = _currentSpinSpeed / _starSpinSpeed;
-            // ToString("F0") - without fractional part
-            spinSpeedRatioText.text = _currentSpinSpeed.ToString("F0") + "/" + _starSpinSpeed;
-
-            // if current speed less than 100
-            if (_currentSpinSpeed < 100)
-            {
-                Die();
-                // RestoreHpToWinner();
-            }
-        }
     }
 
     private static float CrunchIfBothAttackers(float damageAmount)
@@ -241,131 +374,5 @@ public class BattleScript : MonoBehaviourPun
         }
     }
 
-    IEnumerator ReSpawnCountDown()
-    {
-        GameObject canvasGameObject = GameObject.Find("Canvas");
-
-        if (_deathPanelGameObject == null)
-        {
-            _deathPanelGameObject = Instantiate(deathPanelUiPrefab, canvasGameObject.transform);
-        }
-        else
-        {
-            _deathPanelGameObject.SetActive(true);
-        }
-
-        Text respawnTimeText = _deathPanelGameObject.transform.Find("RespawnTimeText").GetComponent<Text>();
-
-        float respawnTime = 8;
-        respawnTimeText.text = respawnTime.ToString(".00");
-        while (respawnTime > 0)
-        {
-            yield return new WaitForSeconds(1.0F);
-            respawnTime--;
-            respawnTimeText.text = respawnTime.ToString(".00");
-
-            GetComponent<MovementController>().enabled = false;
-        }
-
-        _deathPanelGameObject.SetActive(false);
-        GetComponent<MovementController>().enabled = true;
-
-        // after die and respawn time count down, we should respawn our player
-        photonView.RPC("Reborn", RpcTarget.AllBuffered);
-    }
-
-    [PunRPC]
-    private void Reborn()
-    {
-        spinnerScript.spinnerSpeed = _starSpinSpeed;
-        _currentSpinSpeed = _starSpinSpeed;
-
-        spinSpeedBarImage.fillAmount = _currentSpinSpeed / _starSpinSpeed;
-        spinSpeedRatioText.text = _currentSpinSpeed + "/" + _starSpinSpeed;
-
-        // reactivate freeze rotation
-        _rigidbody.freezeRotation = true;
-        transform.rotation = Quaternion.Euler(Vector3.zero);
-
-        // reactivate 3D UI
-        ui3DGameObject.SetActive(true);
-
-        _isDead = false;
-    }
-
-    IEnumerator RebornBot(float sec)
-    {
-        while (sec > 0)
-        {
-            yield return new WaitForSeconds(1.0F);
-            sec--;
-        }
-        
-        spinnerScript.spinnerSpeed = _starSpinSpeed;
-        _currentSpinSpeed = _starSpinSpeed;
-            
-        spinSpeedBarImage.fillAmount = _currentSpinSpeed / _starSpinSpeed;
-        spinSpeedRatioText.text = _currentSpinSpeed + "/" + _starSpinSpeed;
-            
-        // reactivate freeze rotation
-        _rigidbody.freezeRotation = true;
-        transform.rotation = Quaternion.Euler(Vector3.zero);
-            
-        // reactivate 3D UI
-        ui3DGameObject.SetActive(true);
-            
-        _isDead = false;
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        CheckPlayerType();
-
-        CheckIsBot();
-
-        _rigidbody = GetComponent<Rigidbody>();
-
-        if (photonView.IsMine)
-        {
-            // instantiate 8 collision gameObjects, which contains visual and sounds effects together
-            // And we do it only for local player. We don`t want instantiate it twice
-            // Then add this objects to list and deactivate them.
-            pooledObjects = new List<GameObject>();
-            for (int i = 0; i < amountToPool; i++)
-            {
-                GameObject obj = Instantiate(collisionEffectPrefab, Vector3.zero, Quaternion.identity);
-                obj.SetActive(false);
-                pooledObjects.Add(obj);
-            }
-        }
-    }
-
-    /**
-     * When collision happens we try to grab a Collision game object from existing
-     * de-activated Collision game objects
-     */
-    public GameObject GetPooledObject()
-    {
-        for (int i = 0; i < pooledObjects.Count; i++)
-        {
-            if (!pooledObjects[i].activeInHierarchy)
-            {
-                return pooledObjects[i];
-            }
-        }
-
-        return null;
-    }
-
-    IEnumerator DeactivateAfterSeconds(GameObject mGameObject, float seconds)
-    {
-        yield return new WaitForSeconds(seconds);
-        mGameObject.SetActive(false);
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-    }
+    #endregion
 }

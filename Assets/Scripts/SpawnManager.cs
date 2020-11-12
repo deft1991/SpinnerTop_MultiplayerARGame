@@ -134,23 +134,12 @@ public class SpawnManager : MonoBehaviourPunCallbacks
         GameObject botGameObject = Instantiate(playerPrefabs[(int) botSelectionNumber], instantiatePosition,
             Quaternion.identity);
         botGameObject.GetComponent<BattleScript>().isBot = true;
-        botGameObject.GetComponent<MovementController>().enabled = false;
-        botGameObject.GetComponent<MovementController>().enabled = false;
-        botGameObject.GetComponent<MovementController>().joystick.gameObject.SetActive(false);
         // PhotonView attached to all game models
         PhotonView photonView = botGameObject.GetComponent<PhotonView>();
         photonView.enabled = false;
         // PhotonNetwork.AllocateViewID - create and assign new viewId to displays photonView
-        if (PhotonNetwork.AllocateViewID(photonView))
-        {
-            
-        }
-        else
-        {
-            // if we failed allocate viewId we will then destroy the object
-            Debug.Log("Failed to allocate a viewId");
-            Destroy(botGameObject);
-        }
+        PhotonNetwork.AllocateViewID(photonView);
+        botGameObject.GetComponent<BotScript>().enabled = true;
         
     }
 

@@ -15,10 +15,6 @@ public class SpinningTopsGameManager : MonoBehaviourPunCallbacks
     public GameObject raycastCenterImage;
     public SpawnManager spawnManager;
 
-    private DateTime _joinNewRoomTime;
-    private bool _isBotSpawned = false;
-
-
     // Start is called before the first frame update
     void Start()
     {
@@ -77,7 +73,6 @@ public class SpinningTopsGameManager : MonoBehaviourPunCallbacks
         // after 5 seconds - add bot
         if (PhotonNetwork.CurrentRoom.PlayerCount == 1)
         {
-            _joinNewRoomTime = DateTime.UtcNow;
             uiInformText.text = "Joined to " + PhotonNetwork.CurrentRoom.Name
                                              + ". Waiting for other players...";
             StartCoroutine(SpawnBotAfterSeconds(5f));
