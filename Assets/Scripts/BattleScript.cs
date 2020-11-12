@@ -225,10 +225,16 @@ public class BattleScript : MonoBehaviourPun
         // last deactivate UI 3D
         ui3DGameObject.SetActive(false);
 
-        if (photonView.IsMine)
+        if (photonView.IsMine && !isBot)
         {
             // countdown for respawn
             StartCoroutine(ReSpawnCountDown());
+        }
+
+        if (isBot)
+        {
+            Debug.Log("Bot DIE!");
+            Destroy(gameObject);
         }
     }
 
