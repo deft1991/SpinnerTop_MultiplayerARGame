@@ -7,14 +7,13 @@ using UnityEngine.XR.ARFoundation;
 // AR Plane Manager and AR Placement Manager Scripts
 public class ARPlacementAndPlaneDetectionController : MonoBehaviour
 {
-
     public GameObject placeButton;
     public GameObject adjustButton;
     public GameObject searchForGameButton;
     public TextMeshProUGUI informUIPanelText;
     public GameObject scaleSlider;
-    
-    
+    public GameObject battleArenaGameObject;
+
     private ARPlaneManager _arPlaneManager;
     private ARPlacementManager _arPlacementManager;
 
@@ -31,6 +30,7 @@ public class ARPlacementAndPlaneDetectionController : MonoBehaviour
     void Start()
     {
         placeButton.SetActive(true);
+        // placeWithoutArButton.SetActive(true);
         scaleSlider.SetActive(true);
         adjustButton.SetActive(false);
         searchForGameButton.SetActive(false);
@@ -41,7 +41,6 @@ public class ARPlacementAndPlaneDetectionController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
     }
 
     public void OnClickDisableARPlacementAndPlaneDetection()
@@ -57,6 +56,7 @@ public class ARPlacementAndPlaneDetectionController : MonoBehaviour
         adjustButton.SetActive(true);
         searchForGameButton.SetActive(true);
 
+        battleArenaGameObject.transform.position = new Vector3(0, -0.45F, 1.5F);
         informUIPanelText.text = "Great! You placed ARENA... Now, search games to BATTLE!";
     }
 
@@ -64,15 +64,15 @@ public class ARPlacementAndPlaneDetectionController : MonoBehaviour
     {
         _arPlaneManager.enabled = true;
         _arPlacementManager.enabled = true;
-        
+
         // show all existing planes
         SetAllPlanesActive(true);
-        
+
         placeButton.SetActive(true);
         scaleSlider.SetActive(true);
         adjustButton.SetActive(false);
         searchForGameButton.SetActive(false);
-        
+
         informUIPanelText.text = "Move phone to detect planes and place the Battle Arena!";
     }
 

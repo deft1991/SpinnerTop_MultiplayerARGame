@@ -87,15 +87,20 @@ public class PlayerSelectionManager : MonoBehaviour
     
     public void OnClickSelectPlayer()
     {
-        ActivateUiAfterSelection();
+        // ActivateUiAfterSelection();
         
         ExitGames.Client.Photon.Hashtable playerSelectionProp = new ExitGames.Client.Photon.Hashtable
         {
             {MultiplayerArSpinnerTopGame.PLAYER_SELECTION_NUMBER, playerSelectionNumber}
         };
         PhotonNetwork.LocalPlayer.SetCustomProperties(playerSelectionProp);
+        
+        SceneLoader.Instance.LoadScene("Scene_Gameplay");
     }
 
+    /**
+     * Do not use it now. Removed reselection.
+     */
     public void OnClickReSelect()
     {
         ActivateUiSelection();

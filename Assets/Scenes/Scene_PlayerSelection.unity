@@ -802,9 +802,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec6a3e35a780d4d62a9f834215c20c94, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerGraphics: {fileID: 326682648}
   spinnerSpeed: 75
   doSpin: 1
-  playerGraphics: {fileID: 326682648}
 --- !u!1 &347055307
 GameObject:
   m_ObjectHideFlags: 0
@@ -1286,9 +1286,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec6a3e35a780d4d62a9f834215c20c94, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerGraphics: {fileID: 803544281}
   spinnerSpeed: 50
   doSpin: 1
-  playerGraphics: {fileID: 803544281}
 --- !u!1 &840241489
 GameObject:
   m_ObjectHideFlags: 0
@@ -2877,9 +2877,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec6a3e35a780d4d62a9f834215c20c94, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerGraphics: {fileID: 1627051412}
   spinnerSpeed: 50
   doSpin: 1
-  playerGraphics: {fileID: 1627051412}
 --- !u!1 &1697754609
 GameObject:
   m_ObjectHideFlags: 0
@@ -3207,7 +3207,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: select
+  m_text: battle
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: dac26dc60cc21c248b15a0d377e0dc4c, type: 2}
   m_sharedMaterial: {fileID: -3996687209750109849, guid: dac26dc60cc21c248b15a0d377e0dc4c,
@@ -3526,9 +3526,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec6a3e35a780d4d62a9f834215c20c94, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerGraphics: {fileID: 1975092763}
   spinnerSpeed: 50
   doSpin: 1
-  playerGraphics: {fileID: 1975092763}
 --- !u!1 &2007456014
 GameObject:
   m_ObjectHideFlags: 0
