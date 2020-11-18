@@ -373,7 +373,6 @@ MonoBehaviour:
   speed: 5
   maxVelocityChange: 5
   tiltAmount: 5
-  isBot: 0
 --- !u!114 &1973600510
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -486,7 +485,6 @@ MonoBehaviour:
   speed: 5
   maxVelocityChange: 5
   tiltAmount: 5
-  isBot: 0
 --- !u!1 &2523371896480695252
 GameObject:
   m_ObjectHideFlags: 0

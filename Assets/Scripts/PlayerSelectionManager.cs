@@ -92,6 +92,7 @@ public class PlayerSelectionManager : MonoBehaviour
         ExitGames.Client.Photon.Hashtable playerSelectionProp = new ExitGames.Client.Photon.Hashtable
         {
             {MultiplayerArSpinnerTopGame.PLAYER_SELECTION_NUMBER, playerSelectionNumber}
+            ,{MultiplayerArSpinnerTopGame.BOOSTER_NUMBER, 0}
         };
         PhotonNetwork.LocalPlayer.SetCustomProperties(playerSelectionProp);
         

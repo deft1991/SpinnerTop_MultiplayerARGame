@@ -14,6 +14,7 @@ public class SpinningTopsGameManager : MonoBehaviourPunCallbacks
     public GameObject adjustButton;
     public GameObject raycastCenterImage;
     public SpawnManager spawnManager;
+    public SpawnBoosterManager spawnBoosterManager;
 
     // Start is called before the first frame update
     void Start()
@@ -76,6 +77,7 @@ public class SpinningTopsGameManager : MonoBehaviourPunCallbacks
             uiInformText.text = "Joined to " + PhotonNetwork.CurrentRoom.Name
                                              + ". Waiting for other players...";
             StartCoroutine(SpawnBotAfterSeconds(5f));
+            StartCoroutine(SpawnBoosterAfterSeconds(5f));
         }
         else
         {
@@ -134,6 +136,14 @@ public class SpinningTopsGameManager : MonoBehaviourPunCallbacks
             // set bot in the room
             spawnManager.SpawnBot();
         }
+    }
+
+    //todo change spawn chest
+    IEnumerator SpawnBoosterAfterSeconds(float seconds)
+    {
+        yield return new WaitForSeconds(seconds);
+        // set booster in the room
+        spawnBoosterManager.SpawnBooster();
     }
 
     #endregion
