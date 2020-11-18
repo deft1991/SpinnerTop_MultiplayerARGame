@@ -133,6 +133,10 @@ public class SpawnManager : MonoBehaviourPunCallbacks
         // instantiate playerGameObject from prefab arr, position from spawn positions and Quaternion from prefab
         GameObject botGameObject = Instantiate(playerPrefabs[(int) botSelectionNumber], instantiatePosition,
             Quaternion.identity);
+
+        botGameObject.GetComponent<PlayerSetup>().playerNameText.text = "Bot";
+        botGameObject.GetComponent<PlayerSetup>().playerNameText.color = Color.red;
+            
         botGameObject.GetComponent<BattleScript>().isBot = true;
         // PhotonView attached to all game models
         PhotonView photonView = botGameObject.GetComponent<PhotonView>();

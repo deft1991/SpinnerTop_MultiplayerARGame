@@ -10,6 +10,7 @@ public class SpawnBoosterManager : MonoBehaviourPunCallbacks
     public GameObject[] boosterPrefabs;
     public Transform[] spawnPositions;
     public GameObject battleArena;
+    private float _timer = 0f;
 
     private enum RaiseEvenCodes
     {
@@ -25,6 +26,13 @@ public class SpawnBoosterManager : MonoBehaviourPunCallbacks
     // Update is called once per frame
     void Update()
     {
+        _timer += Time.deltaTime;
+
+        if (_timer > 15)
+        {
+            StartCoroutine(SpawnBoosterAfterSeconds(3f));
+            _timer = 0;
+        }
     }
 
     #region PHOTON Callback Methods
@@ -63,67 +71,68 @@ public class SpawnBoosterManager : MonoBehaviourPunCallbacks
 
     #endregion
 
-    #region PRIVATE Methods
-
     /**
      * See https://doc.photonengine.com/en-us/pun/current/gameplay/instantiation
      * for better understanding photon sync
      */
     public void SpawnBooster()
     {
-        if (PhotonNetwork.LocalPlayer.CustomProperties.TryGetValue(
-            MultiplayerArSpinnerTopGame.BOOSTER_NUMBER, out var boosterNumber))
+        int boosterNumber = Random.Range(0, boosterPrefabs.Length);
+        Debug.Log("Booster number is " + (int) boosterNumber);
+        int randomSpawnPosition = Random.Range(0, spawnPositions.Length);
+        Vector3 instantiatePosition = spawnPositions[randomSpawnPosition].position;
+
+        // instantiate playerGameObject from prefab arr, position from spawn positions and Quaternion from prefab
+        GameObject boosterGameObject = Instantiate(boosterPrefabs[(int) boosterNumber], instantiatePosition,
+            Quaternion.identity);
+
+        // PhotonView attached to all game models
+        PhotonView photonView = boosterGameObject.GetComponent<PhotonView>();
+
+        // PhotonNetwork.AllocateViewID - create and assign new viewId to displays photonView
+        if (PhotonNetwork.AllocateViewID(photonView))
         {
-            Debug.Log("Booster number is " + (int) boosterNumber);
-            int randomSpawnPosition = Random.Range(0, spawnPositions.Length - 1);
-            Vector3 instantiatePosition = spawnPositions[randomSpawnPosition].position;
-
-            // instantiate playerGameObject from prefab arr, position from spawn positions and Quaternion from prefab
-            GameObject boosterGameObject = Instantiate(boosterPrefabs[(int) boosterNumber], instantiatePosition,
-                Quaternion.identity);
-
-            // PhotonView attached to all game models
-            PhotonView photonView = boosterGameObject.GetComponent<PhotonView>();
-
-            // PhotonNetwork.AllocateViewID - create and assign new viewId to displays photonView
-            if (PhotonNetwork.AllocateViewID(photonView))
+            // extract our own position from battle arena
+            // because other players dont know where we place battle arena
+            // extract battleArena give us ONLY spawn point position
+            var playerPositionIgnoreArenaPos =
+                boosterGameObject.transform.position - battleArena.transform.position;
+            object[] data = new object[]
             {
-                // extract our own position from battle arena
-                // because other players dont know where we place battle arena
-                // extract battleArena give us ONLY spawn point position
-                var playerPositionIgnoreArenaPos =
-                    boosterGameObject.transform.position - battleArena.transform.position;
-                object[] data = new object[]
-                {
-                    playerPositionIgnoreArenaPos,
-                    boosterGameObject.transform.rotation,
-                    photonView.ViewID,
-                    boosterNumber
-                };
+                playerPositionIgnoreArenaPos,
+                boosterGameObject.transform.rotation,
+                photonView.ViewID,
+                boosterNumber
+            };
 
 
-                RaiseEventOptions raiseEventOptions = new RaiseEventOptions
-                {
-                    Receivers = ReceiverGroup.Others, // send event to all players except me
-                    CachingOption = EventCaching.AddToRoomCache // event kept in room catch, 
-                };
-
-                SendOptions sendOptions = new SendOptions
-                {
-                    Reliability = true // if set to false it just overrides any current value
-                };
-                // Raise events!
-                PhotonNetwork.RaiseEvent((byte) RaiseEvenCodes.BoosterSpawnEventCode, data, raiseEventOptions,
-                    sendOptions);
-            }
-            else
+            RaiseEventOptions raiseEventOptions = new RaiseEventOptions
             {
-                // if we failed allocate viewId we will then destroy the object
-                Debug.Log("Failed to allocate a viewId");
-                Destroy(boosterGameObject);
-            }
+                Receivers = ReceiverGroup.Others, // send event to all players except me
+                CachingOption = EventCaching.AddToRoomCache // event kept in room catch, 
+            };
+
+            SendOptions sendOptions = new SendOptions
+            {
+                Reliability = true // if set to false it just overrides any current value
+            };
+            // Raise events!
+            PhotonNetwork.RaiseEvent((byte) RaiseEvenCodes.BoosterSpawnEventCode, data, raiseEventOptions,
+                sendOptions);
+        }
+        else
+        {
+            // if we failed allocate viewId we will then destroy the object
+            Debug.Log("Failed to allocate a viewId");
+            Destroy(boosterGameObject);
         }
     }
 
-    #endregion
+    //todo change spawn chest
+    public IEnumerator SpawnBoosterAfterSeconds(float seconds)
+    {
+        yield return new WaitForSeconds(seconds);
+        // set booster in the room
+        SpawnBooster();
+    }
 }

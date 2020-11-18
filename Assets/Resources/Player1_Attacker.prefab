@@ -470,6 +470,7 @@ MonoBehaviour:
   getDamagedCoefficientAttacker: 1.2
   doDamageCoefficientDefender: 0.75
   getDamagedCoefficientDefender: 0.2
+  spawnBoosterManager: {fileID: 0}
 --- !u!114 &5401037093061931208
 MonoBehaviour:
   m_ObjectHideFlags: 0

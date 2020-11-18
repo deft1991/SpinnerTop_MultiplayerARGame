@@ -23,26 +23,23 @@ public class BattleScript : MonoBehaviourPun
 
     [Header("Player Type Damage Coefficients")]
     public float doDamageCoefficientAttacker = 10; // do more damage than defender - ADVANTAGE
-
-
     public float getDamagedCoefficientAttacker = 1.2F; // gets more damage - DISADVANTAGE
     public float doDamageCoefficientDefender = 0.75F; // do less damage - DISADVANTAGE
     public float getDamagedCoefficientDefender = 0.2F; // gets less damage - ADVANTAGE
-
+    
     private float _starSpinSpeed;
     private new Rigidbody _rigidbody;
     private float _currentSpinSpeed;
     private float _defaultSpeedDamage = 3600f;
     private GameObject _deathPanelGameObject;
     private bool _isDead = false;
-
+    
     // Start is called before the first frame update
     void Start()
     {
         CheckPlayerType();
 
         _rigidbody = GetComponent<Rigidbody>();
-
         if (photonView.IsMine)
         {
             // instantiate 8 collision gameObjects, which contains visual and sounds effects together
@@ -145,6 +142,13 @@ public class BattleScript : MonoBehaviourPun
         yield return new WaitForSeconds(seconds);
         mGameObject.SetActive(false);
     }
+    
+    public IEnumerator FreezePlayer(float seconds, MovementController movementController)
+    {
+        movementController.joystick.enabled = false;
+        yield return new WaitForSeconds(seconds);
+        movementController.joystick.enabled = true;
+    }
 
     #endregion
 
@@ -231,26 +235,48 @@ public class BattleScript : MonoBehaviourPun
 
     private void OnCollisionEnter(Collision collision)
     {
+        HandleBoosterCollision(collision);
+        HandlePlayerCollision(collision);
+    }
+
+    private void HandleBoosterCollision(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Booster"))
+        {
+            if (photonView.IsMine)
+            {
+                StartCollisionEffect(collision);
+
+                BoosterScript boosterScript = collision.gameObject.GetComponent<BoosterScript>();
+                Debug.Log("collision with booster");
+                switch (boosterScript.boosterType)
+                {
+                    case BoosterScript.BoosterType.SPEED:
+                        ApplySpeedBooster(boosterScript.increaseSpeed);
+                        break;
+                    case BoosterScript.BoosterType.PUSH:
+                        ApplyPushBooster(boosterScript.pushSpeed);
+                        break;
+                    case BoosterScript.BoosterType.DAMAGE:
+                        ApplyDamageBooster(boosterScript.damageAmount);
+                        break;
+                    case BoosterScript.BoosterType.FREEZE:
+                        ApplyFreezeBooster(boosterScript.freezeTime);
+                        break;
+                }
+            }
+
+            PhotonNetwork.Destroy(collision.gameObject);
+        }
+    }
+
+    private void HandlePlayerCollision(Collision collision)
+    {
         if (collision.gameObject.CompareTag("Player"))
         {
             if (photonView.IsMine)
             {
-                // get average positions of spinners when the collision happens
-                // than add small elevation to show animation not at the bottom   
-                Vector3 effectPosition = (gameObject.transform.position + collision.transform.position) / 2 +
-                                         new Vector3(0, 0.05f, 0);
-
-                //Instantiate Collision Effect ParticleSystem
-                GameObject collisionEffectGameObject = GetPooledObject();
-                if (collisionEffectGameObject != null)
-                {
-                    collisionEffectGameObject.transform.position = effectPosition;
-                    collisionEffectGameObject.SetActive(true);
-                    collisionEffectGameObject.GetComponentInChildren<ParticleSystem>().Play();
-
-                    //De-activate Collision Effect Particle System after some seconds.
-                    StartCoroutine(DeactivateAfterSeconds(collisionEffectGameObject, 0.5f));
-                }
+                StartCollisionEffect(collision);
             }
 
             // Comparing the speed of the SpinnerTop
@@ -295,6 +321,60 @@ public class BattleScript : MonoBehaviourPun
                     .RPC("Reborn", RpcTarget.AllBuffered);
             }
         }
+    }
+
+    private void StartCollisionEffect(Collision collision)
+    {
+        // get average positions of spinners when the collision happens
+        // than add small elevation to show animation not at the bottom   
+        Vector3 effectPosition = (gameObject.transform.position + collision.transform.position) / 2 +
+                                 new Vector3(0, 0.05f, 0);
+
+        //Instantiate Collision Effect ParticleSystem
+        GameObject collisionEffectGameObject = GetPooledObject();
+        if (collisionEffectGameObject != null)
+        {
+            collisionEffectGameObject.transform.position = effectPosition;
+            collisionEffectGameObject.SetActive(true);
+            collisionEffectGameObject.GetComponentInChildren<ParticleSystem>().Play();
+
+            //De-activate Collision Effect Particle System after some seconds.
+            StartCoroutine(DeactivateAfterSeconds(collisionEffectGameObject, 0.5f));
+        }
+    }
+
+    private void ApplySpeedBooster(float speed)
+    {
+        Debug.Log("applySpeedBooster");
+        spinnerScript.spinnerSpeed += speed;
+        // update current speed
+        _currentSpinSpeed = spinnerScript.spinnerSpeed;
+        spinSpeedBarImage.fillAmount = _currentSpinSpeed / _starSpinSpeed;
+        // ToString("F0") - without fractional part
+        spinSpeedRatioText.text = _currentSpinSpeed.ToString("F0") + "/" + _starSpinSpeed;
+    }
+
+    private void ApplyPushBooster(float pushSpeed)
+    {
+        Debug.Log("applyPushBooster");
+        gameObject.GetComponent<MovementController>().MovePlayer(pushSpeed, pushSpeed);
+    }
+
+    private void ApplyDamageBooster(float damage)
+    {
+        spinnerScript.spinnerSpeed -= damage;
+        // update current speed
+        _currentSpinSpeed = spinnerScript.spinnerSpeed;
+        spinSpeedBarImage.fillAmount = _currentSpinSpeed / _starSpinSpeed;
+        // ToString("F0") - without fractional part
+        spinSpeedRatioText.text = _currentSpinSpeed.ToString("F0") + "/" + _starSpinSpeed;
+    }
+
+    private void ApplyFreezeBooster(float freezeTime)
+    {
+        Debug.Log("applyFreezeBooster");
+        MovementController movementController = gameObject.GetComponent<MovementController>();
+        StartCoroutine(FreezePlayer(freezeTime, movementController));
     }
 
     private float CalculateDefaultDamageAmount()

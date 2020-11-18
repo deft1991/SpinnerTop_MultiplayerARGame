@@ -32,7 +32,7 @@ public class MovementController : MonoBehaviour
         MovePlayer(xMovementInput, zMovementInput);
     }
 
-    private void MovePlayer(float xMovementInput, float zMovementInput)
+    public void MovePlayer(float xMovementInput, float zMovementInput)
     {
         // calculating velocity vectors
         var movementVelocityVector = CalculateMovementVelocityVector(xMovementInput, zMovementInput);

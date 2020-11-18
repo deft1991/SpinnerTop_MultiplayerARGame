@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class BotScript : MonoBehaviour
 {
@@ -9,7 +7,7 @@ public class BotScript : MonoBehaviour
     public float tiltAmount = 5f; // величина наклона 
     private Vector3 _velocityVector = Vector3.zero; // initial velocity 
     private Rigidbody _rigidbody;
-    
+
     // Start is called before the first frame update
     void Start()
     {
@@ -21,7 +19,7 @@ public class BotScript : MonoBehaviour
     {
         MoveBot();
     }
-    
+
     private void FixedUpdate()
     {
         if (Vector3.zero != _velocityVector)
@@ -38,24 +36,24 @@ public class BotScript : MonoBehaviour
             _rigidbody.AddForce(changVelocity, ForceMode.Acceleration);
         }
     }
-    
+
     public void MoveBot()
     {
         // taking the joystick input
-        float xMovementInput = Random.Range(-10000, 10000);;
+        float xMovementInput = Random.Range(-10000, 10000);
+        ;
         float zMovementInput = Random.Range(-10000, 10000);
-        MovePlayer(xMovementInput, zMovementInput);
+        MoveBot(xMovementInput, zMovementInput);
     }
-    
-    private void MovePlayer(float xMovementInput, float zMovementInput)
+
+    private void MoveBot(float xMovementInput, float zMovementInput)
     {
         // calculating velocity vectors
         var movementVelocityVector = CalculateMovementVelocityVector(xMovementInput, zMovementInput);
         // Apply movement
         Move(movementVelocityVector);
-        // ChangeTilt(xMovementInput, zMovementInput);
     }
-    
+
     private Vector3 CalculateMovementVelocityVector(float xMovementInput, float zMovementInput)
     {
         Vector3 movementHorizontal = transform.right * xMovementInput;
@@ -64,20 +62,9 @@ public class BotScript : MonoBehaviour
         // calculating final movement velocity vector
         return (movementHorizontal + movementVertical).normalized * speed;
     }
-    
+
     private void Move(Vector3 movementVelocityVector)
     {
         _velocityVector = movementVelocityVector;
-    }
-    
-    /**
-     * Add tilt (Наклон) to our rigidBody
-     */
-    private void ChangeTilt(float xMovementInput, float zMovementInput)
-    {
-        var verticalTilt = xMovementInput/1000 * speed * tiltAmount;
-        var horizontalTilt = -1 * zMovementInput/1000 * speed * tiltAmount;
-        _rigidbody.rotation = Quaternion.Euler(verticalTilt, 0,
-            horizontalTilt);
     }
 }

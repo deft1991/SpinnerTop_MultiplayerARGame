@@ -513,7 +513,6 @@ MonoBehaviour:
   speed: 5
   maxVelocityChange: 5
   tiltAmount: 5
-  isBot: 0
 --- !u!114 &8478436014703928242
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -611,6 +610,7 @@ MonoBehaviour:
   getDamagedCoefficientAttacker: 1.2
   doDamageCoefficientDefender: 0.75
   getDamagedCoefficientDefender: 0.2
+  spawnBoosterManager: {fileID: 0}
 --- !u!114 &7223721255566392395
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -626,7 +626,6 @@ MonoBehaviour:
   speed: 5
   maxVelocityChange: 5
   tiltAmount: 5
-  isBot: 0
 --- !u!1 &2269595060150874238
 GameObject:
   m_ObjectHideFlags: 0
