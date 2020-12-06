@@ -28,7 +28,7 @@ public class BattleScript : MonoBehaviourPun
     public float getDamagedCoefficientDefender = 0.2F; // gets less damage - ADVANTAGE
     
     private float _starSpinSpeed;
-    private new Rigidbody _rigidbody;
+    private Rigidbody _rigidbody;
     private float _currentSpinSpeed;
     private float _defaultSpeedDamage = 3600f;
     private GameObject _deathPanelGameObject;
