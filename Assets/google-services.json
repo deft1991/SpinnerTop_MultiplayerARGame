@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "464390641177",
+    "project_id": "spinnertop-6b947",
+    "storage_bucket": "spinnertop-6b947.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:464390641177:android:075dac5d7e4369af723c88",
+        "android_client_info": {
+          "package_name": "com.deft.spinner"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "464390641177-tvirke57hvji8m2d76o3uc3blsio39s4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.deft.spinner",
+            "certificate_hash": "b8d6917ecbdaeaa73c8e3c6250e0c86996fea0e2"
+          }
+        },
+        {
+          "client_id": "464390641177-ha542ue1bvcm5v3oqfbkdc9612nfpb0q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD4fmZxtarvXV_YE9giHkJ3ec_b8KZ1GGA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "464390641177-ha542ue1bvcm5v3oqfbkdc9612nfpb0q.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "464390641177-3e23286m1fqviir9hmdb2rdeh1qegr7g.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.deft.spinner"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

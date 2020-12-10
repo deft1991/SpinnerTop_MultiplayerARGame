@@ -1,4 +1,5 @@
-﻿using Photon.Pun;
+﻿using System;
+using Photon.Pun;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -15,11 +16,16 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     public Text connectionStatusText;
     public bool showConnectionStatus = false;
 
+    [Header("Google Play Service")] public GameObject googlePlayService;
+    
     #region UNITY Methods
 
     // Start is called before the first frame update
     void Start()
     {
+        var gpgsScript = googlePlayService.GetComponent<GpgsScript>();
+        gpgsScript.LogIn();
+
         if (PhotonNetwork.IsConnected)
         {
             // Activate only Lobby UI

@@ -56,7 +56,7 @@ public class ARPlacementAndPlaneDetectionController : MonoBehaviour
         adjustButton.SetActive(true);
         searchForGameButton.SetActive(true);
 
-        battleArenaGameObject.transform.position = new Vector3(0, -0.45F, 1.5F);
+        // battleArenaGameObject.transform.position = new Vector3(0, -0.45F, 1.5F);
         informUIPanelText.text = "Great! You placed ARENA... Now, search games to BATTLE!";
     }
 
