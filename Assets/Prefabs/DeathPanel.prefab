@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3593783272846422948}
   - component: {fileID: 3593783272846422947}
   m_Layer: 5
-  m_Name: RespawnTimeText
+  m_Name: ScoreCountText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -78,7 +78,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 6.0
+  m_Text: 12345
 --- !u!1 &3593783272886976281
 GameObject:
   m_ObjectHideFlags: 0
@@ -250,7 +250,7 @@ GameObject:
   - component: {fileID: 3593783273957524034}
   - component: {fileID: 3593783273957524033}
   m_Layer: 5
-  m_Name: RespawningAtText
+  m_Name: ScoreText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -316,7 +316,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'Respawning at:'
+  m_Text: 'Your score:'
 --- !u!1001 &4935292241892252760
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -412,12 +412,12 @@ PrefabInstance:
     - target: {fileID: 8144733002062594105, guid: bdca1b3c21bc24d6188aa7daae6604aa,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -341
+      value: -380
       objectReference: {fileID: 0}
     - target: {fileID: 8144733002062594105, guid: bdca1b3c21bc24d6188aa7daae6604aa,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -325
+      value: -90
       objectReference: {fileID: 0}
     - target: {fileID: 8144733002062594105, guid: bdca1b3c21bc24d6188aa7daae6604aa,
         type: 3}
@@ -542,12 +542,12 @@ PrefabInstance:
     - target: {fileID: 8144733002062594105, guid: bdca1b3c21bc24d6188aa7daae6604aa,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 347
+      value: 380
       objectReference: {fileID: 0}
     - target: {fileID: 8144733002062594105, guid: bdca1b3c21bc24d6188aa7daae6604aa,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -325
+      value: -85
       objectReference: {fileID: 0}
     - target: {fileID: 8144733002062594105, guid: bdca1b3c21bc24d6188aa7daae6604aa,
         type: 3}
@@ -567,7 +567,7 @@ PrefabInstance:
     - target: {fileID: 8144733002062594106, guid: bdca1b3c21bc24d6188aa7daae6604aa,
         type: 3}
       propertyPath: m_Name
-      value: ButtonPrefab (1)
+      value: Revenge
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bdca1b3c21bc24d6188aa7daae6604aa, type: 3}

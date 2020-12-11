@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using GooglePlayGames;
@@ -12,6 +13,7 @@ public class GpgsScript : MonoBehaviour
     public Text pointsText;
     public string leaderBoard, acheievementIDs;
 
+    private String _authCode;
     void Start()
     {
         // Recommended for debugging
@@ -30,7 +32,12 @@ public class GpgsScript : MonoBehaviour
         {
             if (success)
             {
+                _authCode = PlayGamesPlatform.Instance.GetServerAuthCode();
+                ILocalUser instanceLocalUser = PlayGamesPlatform.Instance.localUser;
+                var userName = instanceLocalUser.userName;
                 Debug.Log("Login Sucess");
+                
+                
             }
             else
             {
@@ -79,6 +86,15 @@ public class GpgsScript : MonoBehaviour
         {
             // handle success or failure
         });
+    }    
+    
+    /// <summary>
+    /// Showing the Achievements UI
+    /// </summary>
+    public void showAchievementsUI()
+    {
+        // show achievements UI
+        Social.ShowAchievementsUI();
     }
 
     /// <summary>
