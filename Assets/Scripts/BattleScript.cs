@@ -23,17 +23,19 @@ public class BattleScript : MonoBehaviourPun
 
     [Header("Player Type Damage Coefficients")]
     public float doDamageCoefficientAttacker = 10; // do more damage than defender - ADVANTAGE
+
     public float getDamagedCoefficientAttacker = 1.2F; // gets more damage - DISADVANTAGE
     public float doDamageCoefficientDefender = 0.75F; // do less damage - DISADVANTAGE
     public float getDamagedCoefficientDefender = 0.2F; // gets less damage - ADVANTAGE
-    
+
     private float _starSpinSpeed;
     private Rigidbody _rigidbody;
     private float _currentSpinSpeed;
     private float _defaultSpeedDamage = 3600f;
     private GameObject _deathPanelGameObject;
     private bool _isDead = false;
-    
+    private int _score;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -79,7 +81,7 @@ public class BattleScript : MonoBehaviourPun
 
     #region CORUTINE Methods
 
-    IEnumerator ReSpawnCountDown()
+    IEnumerator ReSpawnCountDown(int score)
     {
         GameObject canvasGameObject = GameObject.Find("Canvas");
 
@@ -92,9 +94,11 @@ public class BattleScript : MonoBehaviourPun
             _deathPanelGameObject.SetActive(true);
         }
 
+        Text scoreText = _deathPanelGameObject.transform.Find("ScoreCountText").GetComponent<Text>();
         Text respawnTimeText = _deathPanelGameObject.transform.Find("RespawnTimeText").GetComponent<Text>();
 
         float respawnTime = 8;
+        scoreText.text = score.ToString();
         respawnTimeText.text = respawnTime.ToString(".00");
         while (respawnTime > 0)
         {
@@ -294,7 +298,9 @@ public class BattleScript : MonoBehaviourPun
                 Debug.Log("YOU Damage the other player");
 
                 var defaultDamageAmount = CalculateDefaultDamageAmount();
-
+                
+                IncreaseScore(defaultDamageAmount);
+                
                 // check that gameObject isMine
                 // if we do not check it, we will damage players as many as we have users in the room
                 // RPC call will execute for app players in the room
@@ -426,6 +432,14 @@ public class BattleScript : MonoBehaviourPun
         return damageAmount;
     }
 
+    private void IncreaseScore(float defaultDamageAmount)
+    {
+        if (!_isDead)
+        {
+            _score += (int) defaultDamageAmount;
+        }
+    }
+
     private void Die()
     {
         _isDead = true;
@@ -444,7 +458,7 @@ public class BattleScript : MonoBehaviourPun
         if (photonView.IsMine && !isBot)
         {
             // countdown for respawn
-            StartCoroutine(ReSpawnCountDown());
+            StartCoroutine(ReSpawnCountDown(_score));
         }
 
         if (isBot)

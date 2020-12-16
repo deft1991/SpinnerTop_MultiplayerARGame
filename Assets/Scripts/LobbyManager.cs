@@ -23,22 +23,37 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
     [Header("Google Play Service")] public GameObject googlePlayService;
 
+    private GpgsScript _gpgsScript;
+    private String _playerName;
+
     #region UNITY Methods
 
     // Start is called before the first frame update
     void Start()
     {
-        var gpgsScript = googlePlayService.GetComponent<GpgsScript>();
-        gpgsScript.LogIn();
+        _gpgsScript = googlePlayService.GetComponent<GpgsScript>();
+        _gpgsScript.LogIn();
+        if (Social.localUser.authenticated)
+        {
+            _playerName = PlayGamesPlatform.Instance.localUser.userName;
+            playerNameTMP.text = _playerName;
+        }
     }
 
 
     // Update is called once per frame
     void Update()
     {
+        if (!Social.localUser.authenticated && _playerName == null)
+        {
+            ShowLoginUI();
+            _playerName = PlayGamesPlatform.Instance.localUser.userName;
+            playerNameTMP.text = _playerName;
+        }
+
         if (!PhotonNetwork.IsConnected)
         {
-            TryPhotonLoginWithGooglePlayName(playerNameTMP.text);
+            TryPhotonLoginWithGooglePlayName(_playerName);
         }
 
         if (showConnectionStatus)
@@ -48,7 +63,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
             // todo if PhotonNetwork.NetworkClientState (disconnected) show err and throw on lobby scene 
         }
         
-        playerNameTMP.text = PlayGamesPlatform.Instance.localUser.userName;
+        _playerName = PlayGamesPlatform.Instance.localUser.userName;
     }
 
     #endregion
@@ -57,9 +72,10 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
     public void OnClickEnterGameButton()
     {
-        playerNameTMP.text = playerNameInputField.text;
+        _playerName = playerNameInputField.text;
+        playerNameTMP.text = _playerName;
         // if player name not empty or null let`s connect to Photon servers
-        TryPhotonLogin(playerNameTMP.text);
+        TryPhotonLogin(_playerName);
     }
 
     public void OnClickQuickMatchButton()
