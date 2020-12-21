@@ -1,8 +1,11 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using NUnit.Framework.Constraints;
 using Photon.Pun;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class BattleScript : MonoBehaviourPun
@@ -81,7 +84,7 @@ public class BattleScript : MonoBehaviourPun
 
     #region CORUTINE Methods
 
-    IEnumerator ReSpawnCountDown(int score)
+    public IEnumerator ReSpawnCountDown(int score)
     {
         GameObject canvasGameObject = GameObject.Find("Canvas");
 
@@ -116,6 +119,17 @@ public class BattleScript : MonoBehaviourPun
         photonView.RPC("Reborn", RpcTarget.AllBuffered);
     }
 
+    public void StopReSpawnCountDown()
+    {
+        StopCoroutine(_reSpawnCountDown);
+        
+        _deathPanelGameObject.SetActive(false);
+        GetComponent<MovementController>().enabled = true;
+
+        // after die and respawn time count down, we should respawn our player
+        photonView.RPC("Reborn", RpcTarget.AllBuffered); 
+    }
+
 
     IEnumerator RebornBot(float sec)
     {
@@ -146,7 +160,7 @@ public class BattleScript : MonoBehaviourPun
         yield return new WaitForSeconds(seconds);
         mGameObject.SetActive(false);
     }
-    
+
     public IEnumerator FreezePlayer(float seconds, MovementController movementController)
     {
         movementController.joystick.enabled = false;
@@ -298,9 +312,9 @@ public class BattleScript : MonoBehaviourPun
                 Debug.Log("YOU Damage the other player");
 
                 var defaultDamageAmount = CalculateDefaultDamageAmount();
-                
+
                 IncreaseScore(defaultDamageAmount);
-                
+
                 // check that gameObject isMine
                 // if we do not check it, we will damage players as many as we have users in the room
                 // RPC call will execute for app players in the room
@@ -440,6 +454,7 @@ public class BattleScript : MonoBehaviourPun
         }
     }
 
+    private IEnumerator _reSpawnCountDown;
     private void Die()
     {
         _isDead = true;
@@ -458,7 +473,8 @@ public class BattleScript : MonoBehaviourPun
         if (photonView.IsMine && !isBot)
         {
             // countdown for respawn
-            StartCoroutine(ReSpawnCountDown(_score));
+            _reSpawnCountDown = ReSpawnCountDown(_score);
+            StartCoroutine(_reSpawnCountDown);
         }
 
         if (isBot)

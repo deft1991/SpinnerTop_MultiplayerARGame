@@ -102,14 +102,19 @@ public class SpinningTopsGameManager : MonoBehaviourPunCallbacks
 
     public override void OnLeftRoom()
     {
-        SceneLoader.Instance.LoadScene("Scene_Lobby");
+        // todo узнать что будет если не обрабатывать этот метод
+        // SceneLoader.Instance.LoadScene("Scene_Lobby");
+        if (!PhotonNetwork.IsConnected)
+        {
+            SceneLoader.Instance.LoadScene("Scene_Lobby");
+        }
     }
 
     #endregion
 
     #region Private methods
 
-    private void CreateAndJoinRoom()
+    public void CreateAndJoinRoom()
     {
         string randomRoomName = "Room " + Random.Range(0, 100000);
         RoomOptions roomOptions = new RoomOptions {IsOpen = true, IsVisible = true, MaxPlayers = 3};

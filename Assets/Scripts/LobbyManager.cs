@@ -44,7 +44,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     // Update is called once per frame
     void Update()
     {
-        if (!Social.localUser.authenticated && _playerName == null)
+        if (!Social.localUser.authenticated && _playerName == null && !PhotonNetwork.IsConnected)
         {
             ShowLoginUI();
             _playerName = PlayGamesPlatform.Instance.localUser.userName;
