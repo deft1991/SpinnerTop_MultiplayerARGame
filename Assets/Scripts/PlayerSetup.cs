@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Photon.Pun;
 using TMPro;
@@ -7,6 +8,7 @@ using UnityEngine;
 public class PlayerSetup : MonoBehaviourPun
 {
     public TextMeshProUGUI playerNameText;
+    public bool isBot = false;
 
     // Start is called before the first frame update
     void Start()
@@ -34,13 +36,17 @@ public class PlayerSetup : MonoBehaviourPun
 
     void SetPlayerName()
     {
-        if (playerNameText != null)
+        if (isBot)
+        {
+            String botName = GenerateBotName();
+            SetBotName(botName);
+        }
+        else if (playerNameText != null)
         {
             if (photonView.IsMine)
             {
                 playerNameText.text = "YOU";
                 playerNameText.color = Color.green;
-                
             }
             else
             {
@@ -49,4 +55,19 @@ public class PlayerSetup : MonoBehaviourPun
             }
         }
     }
+
+    #region PRIVATE
+
+    private string GenerateBotName()
+    {
+        return "Bot";
+    }
+
+    private void SetBotName(string botName)
+    {
+        playerNameText.text = botName;
+        playerNameText.color = Color.red;
+    }
+
+    #endregion
 }

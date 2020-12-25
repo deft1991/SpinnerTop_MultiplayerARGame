@@ -16,15 +16,28 @@ public class SpinningTopsGameManager : MonoBehaviourPunCallbacks
     public SpawnManager spawnManager;
     public SpawnBoosterManager spawnBoosterManager;
 
+    private float _timer = 0f;
+
     // Start is called before the first frame update
     void Start()
     {
         uiInformPanelGameObject.SetActive(true);
+        spawnBoosterManager.AddOnBoosterSpawnEvent();
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (spawnBoosterManager.enabled)
+        {
+            _timer += Time.deltaTime;
+        
+            if (_timer > 15)
+            {
+                StartCoroutine(spawnBoosterManager.SpawnBoosterAfterSeconds(3f));
+                _timer = 0;
+            }
+        }
     }
 
     #region UI Callback Methods
@@ -83,6 +96,12 @@ public class SpinningTopsGameManager : MonoBehaviourPunCallbacks
             uiInformText.text = "Joined to " + PhotonNetwork.CurrentRoom.Name;
             StartCoroutine(DeactivateAfterSeconds(uiInformPanelGameObject, 2f));
         }
+        
+        if (PhotonNetwork.IsMasterClient)
+        {
+            spawnBoosterManager.enabled = true;
+            
+        }
 
         Debug.Log(PhotonNetwork.NickName + " joined to room " + PhotonNetwork.CurrentRoom.Name);
     }
@@ -98,6 +117,11 @@ public class SpinningTopsGameManager : MonoBehaviourPunCallbacks
         uiInformText.text = informMsgAboutPlayerEnteredRoom;
 
         StartCoroutine(DeactivateAfterSeconds(uiInformPanelGameObject, 2));
+        
+        if (PhotonNetwork.CurrentRoom.PlayerCount > 1)
+        {
+            spawnBoosterManager.enabled = true;
+        }
     }
 
     public override void OnLeftRoom()

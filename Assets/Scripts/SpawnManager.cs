@@ -1,5 +1,6 @@
 ﻿using ExitGames.Client.Photon;
 using Photon.Pun;
+using Photon.Pun.Demo.PunBasics;
 using Photon.Realtime;
 using UnityEngine;
 
@@ -134,17 +135,18 @@ public class SpawnManager : MonoBehaviourPunCallbacks
         GameObject botGameObject = Instantiate(playerPrefabs[(int) botSelectionNumber], instantiatePosition,
             Quaternion.identity);
 
-        botGameObject.GetComponent<PlayerSetup>().playerNameText.text = "Bot";
-        botGameObject.GetComponent<PlayerSetup>().playerNameText.color = Color.red;
-            
         botGameObject.GetComponent<BattleScript>().isBot = true;
+        botGameObject.GetComponent<PlayerSetup>().isBot = true;
         // PhotonView attached to all game models
         PhotonView photonView = botGameObject.GetComponent<PhotonView>();
         photonView.enabled = false;
+        // photonView.Owner.NickName = "Bot";
         // PhotonNetwork.AllocateViewID - create and assign new viewId to displays photonView
         PhotonNetwork.AllocateViewID(photonView);
         botGameObject.GetComponent<BotScript>().enabled = true;
-        
+
+        var spinningTopsGameManager = FindObjectOfType<SpinningTopsGameManager>();
+        spinningTopsGameManager.spawnBoosterManager.enabled = true;
     }
 
     private void OnDestroy()

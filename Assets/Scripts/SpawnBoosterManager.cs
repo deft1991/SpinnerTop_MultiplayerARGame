@@ -20,19 +20,18 @@ public class SpawnBoosterManager : MonoBehaviourPunCallbacks
     // Start is called before the first frame update
     void Start()
     {
-        PhotonNetwork.NetworkingClient.EventReceived += OnEventBoosterSpawn;
     }
 
     // Update is called once per frame
     void Update()
     {
-        _timer += Time.deltaTime;
-
-        if (_timer > 15)
-        {
-            StartCoroutine(SpawnBoosterAfterSeconds(3f));
-            _timer = 0;
-        }
+        // _timer += Time.deltaTime;
+        //
+        // if (_timer > 15)
+        // {
+        //     StartCoroutine(SpawnBoosterAfterSeconds(3f));
+        //     _timer = 0;
+        // }
     }
 
     #region PHOTON Callback Methods
@@ -70,6 +69,13 @@ public class SpawnBoosterManager : MonoBehaviourPunCallbacks
     }
 
     #endregion
+
+    #region PUBLIC
+
+    public void AddOnBoosterSpawnEvent()
+    {
+        PhotonNetwork.NetworkingClient.EventReceived += OnEventBoosterSpawn;
+    }
 
     /**
      * See https://doc.photonengine.com/en-us/pun/current/gameplay/instantiation
@@ -128,6 +134,8 @@ public class SpawnBoosterManager : MonoBehaviourPunCallbacks
         }
     }
 
+    #endregion
+    
     //todo change spawn chest
     public IEnumerator SpawnBoosterAfterSeconds(float seconds)
     {
@@ -135,4 +143,10 @@ public class SpawnBoosterManager : MonoBehaviourPunCallbacks
         // set booster in the room
         SpawnBooster();
     }
+    
+    private void OnDestroy()
+    {
+        PhotonNetwork.NetworkingClient.EventReceived -= OnEventBoosterSpawn;
+    }
+
 }

@@ -122,12 +122,12 @@ public class BattleScript : MonoBehaviourPun
     public void StopReSpawnCountDown()
     {
         StopCoroutine(_reSpawnCountDown);
-        
+
         _deathPanelGameObject.SetActive(false);
         GetComponent<MovementController>().enabled = true;
 
         // after die and respawn time count down, we should respawn our player
-        photonView.RPC("Reborn", RpcTarget.AllBuffered); 
+        photonView.RPC("Reborn", RpcTarget.AllBuffered);
     }
 
 
@@ -215,6 +215,33 @@ public class BattleScript : MonoBehaviourPun
         }
     }
 
+    public void ApplyBooster(float speedAmount)
+    {
+        // apply booster only if player alive
+        try
+        {
+            if (!_isDead)
+            {
+                spinnerScript.spinnerSpeed += speedAmount;
+                // update current speed
+                _currentSpinSpeed = spinnerScript.spinnerSpeed;
+                spinSpeedBarImage.fillAmount = _currentSpinSpeed / _starSpinSpeed;
+                // ToString("F0") - without fractional part
+                spinSpeedRatioText.text = _currentSpinSpeed.ToString("F0") + "/" + _starSpinSpeed;
+
+                // if current speed less than 100
+                if (_currentSpinSpeed < 100)
+                {
+                    Die();
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("ApplyBooster err" + e);
+        }
+    }
+
     #endregion
 
     #region PRIVATE Methods
@@ -261,30 +288,35 @@ public class BattleScript : MonoBehaviourPun
     {
         if (collision.gameObject.CompareTag("Booster"))
         {
+            // todo maybe do it for all
             if (photonView.IsMine)
             {
                 StartCollisionEffect(collision);
-
-                BoosterScript boosterScript = collision.gameObject.GetComponent<BoosterScript>();
-                Debug.Log("collision with booster");
-                switch (boosterScript.boosterType)
-                {
-                    case BoosterScript.BoosterType.SPEED:
-                        ApplySpeedBooster(boosterScript.increaseSpeed);
-                        break;
-                    case BoosterScript.BoosterType.PUSH:
-                        ApplyPushBooster(boosterScript.pushSpeed);
-                        break;
-                    case BoosterScript.BoosterType.DAMAGE:
-                        ApplyDamageBooster(boosterScript.damageAmount);
-                        break;
-                    case BoosterScript.BoosterType.FREEZE:
-                        ApplyFreezeBooster(boosterScript.freezeTime);
-                        break;
-                }
             }
 
-            PhotonNetwork.Destroy(collision.gameObject);
+            BoosterScript boosterScript = collision.gameObject.GetComponent<BoosterScript>();
+            Debug.Log("collision with booster");
+            switch (boosterScript.boosterType)
+            {
+                case BoosterScript.BoosterType.SPEED:
+                    ApplySpeedBooster(boosterScript.increaseSpeed, collision);
+                    break;
+                case BoosterScript.BoosterType.PUSH:
+                    ApplyPushBooster(boosterScript.pushSpeed);
+                    break;
+                case BoosterScript.BoosterType.DAMAGE:
+                    ApplyDamageBooster(boosterScript.damageAmount, collision);
+                    break;
+                case BoosterScript.BoosterType.FREEZE:
+                    ApplyFreezeBooster(boosterScript.freezeTime);
+                    break;
+            }
+
+            // todo check it.
+            if (PhotonNetwork.IsMasterClient)
+            {
+                PhotonNetwork.Destroy(collision.gameObject);
+            }
         }
     }
 
@@ -309,24 +341,7 @@ public class BattleScript : MonoBehaviourPun
 
             if (mySpeed > otherPlayerSpeed)
             {
-                Debug.Log("YOU Damage the other player");
-
-                var defaultDamageAmount = CalculateDefaultDamageAmount();
-
-                IncreaseScore(defaultDamageAmount);
-
-                // check that gameObject isMine
-                // if we do not check it, we will damage players as many as we have users in the room
-                // RPC call will execute for app players in the room
-                if (collision.collider.gameObject.GetComponent<PhotonView>().IsMine && !_isDead
-                ) // damage if we are not die =)
-                {
-                    // Apply damage to slower player.
-                    // RpcTarget.AllBuffered - means send to all players in the room and to players who connected later
-                    // defaultDamageAmount  - amount of damage
-                    collision.collider.gameObject.GetComponent<PhotonView>()
-                        .RPC("DoDamage", RpcTarget.AllBuffered, defaultDamageAmount);
-                }
+                DamageOtherPlayer(collision);
             }
             else if (!collision.collider.gameObject.GetComponent<PhotonView>().IsMine && _isDead
             ) // restore hp for winner
@@ -340,6 +355,28 @@ public class BattleScript : MonoBehaviourPun
                 collision.collider.gameObject.GetComponent<PhotonView>()
                     .RPC("Reborn", RpcTarget.AllBuffered);
             }
+        }
+    }
+
+    private void DamageOtherPlayer(Collision collision)
+    {
+        Debug.Log("YOU Damage the other player");
+
+        var defaultDamageAmount = CalculateDefaultDamageAmount();
+
+        IncreaseScore(defaultDamageAmount);
+
+        // check that gameObject isMine
+        // if we do not check it, we will damage players as many as we have users in the room
+        // RPC call will execute for app players in the room
+        if (collision.collider.gameObject.GetComponent<PhotonView>().IsMine && !_isDead
+        ) // damage if we are not die =)
+        {
+            // Apply damage to slower player.
+            // RpcTarget.AllBuffered - means send to all players in the room and to players who connected later
+            // defaultDamageAmount  - amount of damage
+            collision.collider.gameObject.GetComponent<PhotonView>()
+                .RPC("DoDamage", RpcTarget.AllBuffered, defaultDamageAmount);
         }
     }
 
@@ -363,7 +400,7 @@ public class BattleScript : MonoBehaviourPun
         }
     }
 
-    private void ApplySpeedBooster(float speed)
+    private void ApplySpeedBooster(float speed, Collision collision)
     {
         Debug.Log("applySpeedBooster");
         spinnerScript.spinnerSpeed += speed;
@@ -372,6 +409,12 @@ public class BattleScript : MonoBehaviourPun
         spinSpeedBarImage.fillAmount = _currentSpinSpeed / _starSpinSpeed;
         // ToString("F0") - without fractional part
         spinSpeedRatioText.text = _currentSpinSpeed.ToString("F0") + "/" + _starSpinSpeed;
+
+        if (gameObject.GetComponent<PhotonView>().IsMine && !_isDead)
+        {
+            gameObject.GetComponent<PhotonView>()
+                .RPC("ApplyBooster", RpcTarget.AllBuffered, speed);
+        }
     }
 
     private void ApplyPushBooster(float pushSpeed)
@@ -380,7 +423,7 @@ public class BattleScript : MonoBehaviourPun
         gameObject.GetComponent<MovementController>().MovePlayer(pushSpeed, pushSpeed);
     }
 
-    private void ApplyDamageBooster(float damage)
+    private void ApplyDamageBooster(float damage, Collision collision)
     {
         spinnerScript.spinnerSpeed -= damage;
         // update current speed
@@ -388,6 +431,12 @@ public class BattleScript : MonoBehaviourPun
         spinSpeedBarImage.fillAmount = _currentSpinSpeed / _starSpinSpeed;
         // ToString("F0") - without fractional part
         spinSpeedRatioText.text = _currentSpinSpeed.ToString("F0") + "/" + _starSpinSpeed;
+
+        if (!gameObject.GetComponent<PhotonView>().IsMine)
+        {
+            gameObject.GetComponent<PhotonView>()
+                .RPC("ApplyBooster", RpcTarget.AllBuffered, -damage);
+        }
     }
 
     private void ApplyFreezeBooster(float freezeTime)
@@ -455,6 +504,7 @@ public class BattleScript : MonoBehaviourPun
     }
 
     private IEnumerator _reSpawnCountDown;
+
     private void Die()
     {
         _isDead = true;
