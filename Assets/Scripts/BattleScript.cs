@@ -38,10 +38,14 @@ public class BattleScript : MonoBehaviourPun
     private GameObject _deathPanelGameObject;
     private bool _isDead = false;
     private int _score;
+    
+    private GameObject battleArena; // need to check position and send die if leave arena
 
     // Start is called before the first frame update
     void Start()
     {
+        battleArena = GameObject.Find("BattleArena");
+        
         CheckPlayerType();
 
         _rigidbody = GetComponent<Rigidbody>();
@@ -80,7 +84,37 @@ public class BattleScript : MonoBehaviourPun
     // Update is called once per frame
     void Update()
     {
+        // CheckThatWeOnBattleArenaOrSendDie();
     }
+
+    //// todo check reborn, because we reborn on current position
+    // private void CheckThatWeOnBattleArenaOrSendDie()
+    // {
+    //     if (gameObject.GetComponent<PhotonView>().IsMine && !_isDead)
+    //     {
+    //         var transformPosition = gameObject.transform.position;
+    //         Vector3 battleArenaPosition = battleArena.transform.position;
+    //
+    //         bool leaveViaX = transformPosition.x > battleArenaPosition.x + 1 ||
+    //                          transformPosition.x < battleArenaPosition.x - 1;
+    //         bool leaveViaY = transformPosition.y > battleArenaPosition.y + 1 ||
+    //                          transformPosition.y < battleArenaPosition.y - 1;
+    //         bool leaveViaZ = transformPosition.z > battleArenaPosition.z + 1 ||
+    //                          transformPosition.z < battleArenaPosition.z - 1;
+    //         if (leaveViaX || leaveViaY || leaveViaZ)
+    //         {
+    //             if (photonView.IsMine)
+    //             {
+    //                 Die();
+    //             }
+    //             else
+    //             {
+    //                 gameObject.GetComponent<PhotonView>()
+    //                     .RPC("LeaveArena", RpcTarget.AllBuffered);
+    //             }
+    //         }
+    //     }
+    // }
 
     #region CORUTINE Methods
 
@@ -215,6 +249,11 @@ public class BattleScript : MonoBehaviourPun
         }
     }
 
+    public void LeaveArena()
+    {
+        Die();
+    }
+
     public void ApplyBooster(float speedAmount)
     {
         // apply booster only if player alive
@@ -295,27 +334,38 @@ public class BattleScript : MonoBehaviourPun
             }
 
             BoosterScript boosterScript = collision.gameObject.GetComponent<BoosterScript>();
+
+            try
+            {
+                // todo check it.
+                if (PhotonNetwork.IsMasterClient)
+                {
+                    PhotonNetwork.Destroy(collision.gameObject);
+                }
+
+                Destroy(collision.gameObject);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+            
             Debug.Log("collision with booster");
             switch (boosterScript.boosterType)
             {
                 case BoosterScript.BoosterType.SPEED:
-                    ApplySpeedBooster(boosterScript.increaseSpeed, collision);
+                    ApplySpeedBooster(boosterScript.increaseSpeed);
                     break;
                 case BoosterScript.BoosterType.PUSH:
                     ApplyPushBooster(boosterScript.pushSpeed);
                     break;
                 case BoosterScript.BoosterType.DAMAGE:
-                    ApplyDamageBooster(boosterScript.damageAmount, collision);
+                    ApplyDamageBooster(boosterScript.damageAmount);
                     break;
                 case BoosterScript.BoosterType.FREEZE:
                     ApplyFreezeBooster(boosterScript.freezeTime);
                     break;
-            }
-
-            // todo check it.
-            if (PhotonNetwork.IsMasterClient)
-            {
-                PhotonNetwork.Destroy(collision.gameObject);
             }
         }
     }
@@ -400,9 +450,9 @@ public class BattleScript : MonoBehaviourPun
         }
     }
 
-    private void ApplySpeedBooster(float speed, Collision collision)
+    private void ApplySpeedBooster(float speed)
     {
-        Debug.Log("applySpeedBooster");
+        Debug.Log("ApplySpeedBooster");
         spinnerScript.spinnerSpeed += speed;
         // update current speed
         _currentSpinSpeed = spinnerScript.spinnerSpeed;
@@ -413,17 +463,20 @@ public class BattleScript : MonoBehaviourPun
         if (gameObject.GetComponent<PhotonView>().IsMine && !_isDead)
         {
             gameObject.GetComponent<PhotonView>()
-                .RPC("ApplyBooster", RpcTarget.AllBuffered, speed);
+                .RPC("ApplyBooster", RpcTarget.Others, speed);
         }
+        
     }
 
     private void ApplyPushBooster(float pushSpeed)
     {
         Debug.Log("applyPushBooster");
-        gameObject.GetComponent<MovementController>().MovePlayer(pushSpeed, pushSpeed);
+        Vector3 transformPosition = gameObject.transform.position;
+        Vector3 battleArenaPosition = battleArena.transform.position;
+        gameObject.transform.position = new Vector3(battleArenaPosition.x, - 0.1F, battleArenaPosition.z);
     }
 
-    private void ApplyDamageBooster(float damage, Collision collision)
+    private void ApplyDamageBooster(float damage)
     {
         spinnerScript.spinnerSpeed -= damage;
         // update current speed

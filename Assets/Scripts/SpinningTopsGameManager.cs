@@ -89,7 +89,8 @@ public class SpinningTopsGameManager : MonoBehaviourPunCallbacks
         {
             uiInformText.text = "Joined to " + PhotonNetwork.CurrentRoom.Name
                                              + ". Waiting for other players...";
-            StartCoroutine(SpawnBotAfterSeconds(5f));
+            // todo return bot spawning
+            // StartCoroutine(SpawnBotAfterSeconds(15f));
         }
         else
         {
@@ -141,7 +142,7 @@ public class SpinningTopsGameManager : MonoBehaviourPunCallbacks
     public void CreateAndJoinRoom()
     {
         string randomRoomName = "Room " + Random.Range(0, 100000);
-        RoomOptions roomOptions = new RoomOptions {IsOpen = true, IsVisible = true, MaxPlayers = 3};
+        RoomOptions roomOptions = new RoomOptions {IsOpen = true, IsVisible = true, MaxPlayers = 2};
 
         // Creating Room 
         PhotonNetwork.CreateRoom(randomRoomName, roomOptions); // creates and join to room
