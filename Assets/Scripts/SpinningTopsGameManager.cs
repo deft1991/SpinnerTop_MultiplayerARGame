@@ -90,7 +90,7 @@ public class SpinningTopsGameManager : MonoBehaviourPunCallbacks
             uiInformText.text = "Joined to " + PhotonNetwork.CurrentRoom.Name
                                              + ". Waiting for other players...";
             // todo return bot spawning
-            StartCoroutine(SpawnBotAfterSeconds(5f));
+            StartCoroutine(SpawnBotAfterSeconds( Random.Range(5, 10)));
         }
         else
         {

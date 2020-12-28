@@ -7,6 +7,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using Random = System.Random;
 
 public class BattleScript : MonoBehaviourPun
 {
@@ -225,11 +226,10 @@ public class BattleScript : MonoBehaviourPun
         if (!isBot && _isDead && PhotonNetwork.IsMasterClient && PhotonNetwork.CurrentRoom.PlayerCount == 1)
         {
             SpinningTopsGameManager gameManager = FindObjectOfType<SpinningTopsGameManager>();
-            StartCoroutine(gameManager.SpawnBotAfterSeconds(3f));
+            StartCoroutine(gameManager.SpawnBotAfterSeconds(new Random().Next(3, 7)));
         }
-        
-        _isDead = false;
 
+        _isDead = false;
     }
 
     [PunRPC]
@@ -584,17 +584,27 @@ public class BattleScript : MonoBehaviourPun
             // countdown for respawn
             _reSpawnCountDown = ReSpawnCountDown(_score);
             StartCoroutine(_reSpawnCountDown);
-            RemoveBotFromRoomWhenWeDie();
+            RemoveBotFromRoom();
         }
 
         if (isBot)
         {
             Debug.Log("Bot DIE!");
-            StartCoroutine(RebornBot(8));
+            //todo add random to bot leave room
+            bool isRemoveBot = new Random().NextDouble() >= 0.5;
+            if (isRemoveBot)
+            {
+                StartCoroutine(RebornBot(new Random().Next(2, 8)));
+            }
+            else
+            {
+                // todo add remove bot after sec
+                RemoveBotFromRoom();
+            }
         }
     }
 
-    private static void RemoveBotFromRoomWhenWeDie()
+    private static void RemoveBotFromRoom()
     {
         BattleScript[] findObjectOfType = FindObjectsOfType<BattleScript>();
         foreach (var battleScript in findObjectOfType)
