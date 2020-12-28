@@ -750,6 +750,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerNameText: {fileID: 1802076417369794717}
+  isBot: 0
 --- !u!114 &3870988014385874199
 MonoBehaviour:
   m_ObjectHideFlags: 0

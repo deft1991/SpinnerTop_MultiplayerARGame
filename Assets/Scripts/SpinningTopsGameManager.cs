@@ -31,7 +31,7 @@ public class SpinningTopsGameManager : MonoBehaviourPunCallbacks
         if (spawnBoosterManager.enabled)
         {
             _timer += Time.deltaTime;
-        
+
             if (_timer > 15)
             {
                 StartCoroutine(spawnBoosterManager.SpawnBoosterAfterSeconds(3f));
@@ -90,18 +90,17 @@ public class SpinningTopsGameManager : MonoBehaviourPunCallbacks
             uiInformText.text = "Joined to " + PhotonNetwork.CurrentRoom.Name
                                              + ". Waiting for other players...";
             // todo return bot spawning
-            // StartCoroutine(SpawnBotAfterSeconds(15f));
+            StartCoroutine(SpawnBotAfterSeconds(5f));
         }
         else
         {
             uiInformText.text = "Joined to " + PhotonNetwork.CurrentRoom.Name;
             StartCoroutine(DeactivateAfterSeconds(uiInformPanelGameObject, 2f));
         }
-        
+
         if (PhotonNetwork.IsMasterClient)
         {
             spawnBoosterManager.enabled = true;
-            
         }
 
         Debug.Log(PhotonNetwork.NickName + " joined to room " + PhotonNetwork.CurrentRoom.Name);
@@ -118,7 +117,7 @@ public class SpinningTopsGameManager : MonoBehaviourPunCallbacks
         uiInformText.text = informMsgAboutPlayerEnteredRoom;
 
         StartCoroutine(DeactivateAfterSeconds(uiInformPanelGameObject, 2));
-        
+
         if (PhotonNetwork.CurrentRoom.PlayerCount > 1)
         {
             spawnBoosterManager.enabled = true;
@@ -155,7 +154,7 @@ public class SpinningTopsGameManager : MonoBehaviourPunCallbacks
     }
 
 
-    IEnumerator SpawnBotAfterSeconds(float seconds)
+    public IEnumerator SpawnBotAfterSeconds(float seconds)
     {
         yield return new WaitForSeconds(seconds);
         StartCoroutine(DeactivateAfterSeconds(uiInformPanelGameObject, 2));

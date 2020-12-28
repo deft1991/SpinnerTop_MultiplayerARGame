@@ -38,14 +38,14 @@ public class BattleScript : MonoBehaviourPun
     private GameObject _deathPanelGameObject;
     private bool _isDead = false;
     private int _score;
-    
+
     private GameObject battleArena; // need to check position and send die if leave arena
 
     // Start is called before the first frame update
     void Start()
     {
         battleArena = GameObject.Find("BattleArena");
-        
+
         CheckPlayerType();
 
         _rigidbody = GetComponent<Rigidbody>();
@@ -222,7 +222,14 @@ public class BattleScript : MonoBehaviourPun
         // reactivate 3D UI
         ui3DGameObject.SetActive(true);
 
+        if (!isBot && _isDead && PhotonNetwork.IsMasterClient && PhotonNetwork.CurrentRoom.PlayerCount == 1)
+        {
+            SpinningTopsGameManager gameManager = FindObjectOfType<SpinningTopsGameManager>();
+            StartCoroutine(gameManager.SpawnBotAfterSeconds(3f));
+        }
+        
         _isDead = false;
+
     }
 
     [PunRPC]
@@ -350,7 +357,7 @@ public class BattleScript : MonoBehaviourPun
                 Console.WriteLine(e);
                 throw;
             }
-            
+
             Debug.Log("collision with booster");
             switch (boosterScript.boosterType)
             {
@@ -465,7 +472,6 @@ public class BattleScript : MonoBehaviourPun
             gameObject.GetComponent<PhotonView>()
                 .RPC("ApplyBooster", RpcTarget.Others, speed);
         }
-        
     }
 
     private void ApplyPushBooster(float pushSpeed)
@@ -473,7 +479,7 @@ public class BattleScript : MonoBehaviourPun
         Debug.Log("applyPushBooster");
         Vector3 transformPosition = gameObject.transform.position;
         Vector3 battleArenaPosition = battleArena.transform.position;
-        gameObject.transform.position = new Vector3(battleArenaPosition.x, - 0.1F, battleArenaPosition.z);
+        gameObject.transform.position = new Vector3(battleArenaPosition.x, -0.1F, battleArenaPosition.z);
     }
 
     private void ApplyDamageBooster(float damage)
@@ -578,12 +584,26 @@ public class BattleScript : MonoBehaviourPun
             // countdown for respawn
             _reSpawnCountDown = ReSpawnCountDown(_score);
             StartCoroutine(_reSpawnCountDown);
+            RemoveBotFromRoomWhenWeDie();
         }
 
         if (isBot)
         {
             Debug.Log("Bot DIE!");
             StartCoroutine(RebornBot(8));
+        }
+    }
+
+    private static void RemoveBotFromRoomWhenWeDie()
+    {
+        BattleScript[] findObjectOfType = FindObjectsOfType<BattleScript>();
+        foreach (var battleScript in findObjectOfType)
+        {
+            if (battleScript.isBot)
+            {
+                PhotonView.Destroy(battleScript.photonView);
+                Destroy(battleScript.gameObject);
+            }
         }
     }
 

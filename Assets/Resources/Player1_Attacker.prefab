@@ -425,6 +425,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerNameText: {fileID: 2523371896480695254}
+  isBot: 0
 --- !u!114 &2019561545440355892
 MonoBehaviour:
   m_ObjectHideFlags: 0
