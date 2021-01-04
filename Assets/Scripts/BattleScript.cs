@@ -43,7 +43,7 @@ public class BattleScript : MonoBehaviourPun
     private GameObject battleArena; // need to check position and send die if leave arena
     private GpgsScript _gpgsScript;
     private IEnumerator _reSpawnCountDown;
-    
+
     // Start is called before the first frame update
     void Start()
     {
@@ -155,10 +155,10 @@ public class BattleScript : MonoBehaviourPun
 
         float respawnTime = 8;
         scoreText.text = score.ToString();
-        
+
         _gpgsScript = FindObjectOfType<GpgsScript>();
         _gpgsScript.MorePoints(score);
-        
+
         respawnTimeText.text = respawnTime.ToString(".00");
         while (respawnTime > 0)
         {
@@ -175,11 +175,11 @@ public class BattleScript : MonoBehaviourPun
         // after die and respawn time count down, we should respawn our player
         photonView.RPC("Reborn", RpcTarget.AllBuffered);
     }
-    
+
     IEnumerator RemoveBotFromRoom(int secForRemove)
     {
         yield return new WaitForSeconds(secForRemove);
-        
+
         BattleScript[] findObjectOfType = FindObjectsOfType<BattleScript>();
         foreach (var battleScript in findObjectOfType)
         {
@@ -189,13 +189,13 @@ public class BattleScript : MonoBehaviourPun
                 Destroy(battleScript.gameObject);
             }
         }
-        
+
         // todo check it
         // respawn bot
         SpinningTopsGameManager gameManager = FindObjectOfType<SpinningTopsGameManager>();
         gameManager.SpawnBotAfterSeconds(new Random().Next(6, 10));
     }
-    
+
     IEnumerator RebornBot(float sec)
     {
         while (sec > 0)
@@ -451,7 +451,10 @@ public class BattleScript : MonoBehaviourPun
 
         var defaultDamageAmount = CalculateDefaultDamageAmount();
 
-        IncreaseScore((long) defaultDamageAmount);
+        if (photonView.IsMine)
+        {
+            IncreaseScore((long) defaultDamageAmount);
+        }
 
         // check that gameObject isMine
         // if we do not check it, we will damage players as many as we have users in the room
@@ -586,12 +589,12 @@ public class BattleScript : MonoBehaviourPun
 
     private void IncreaseScore(long defaultDamageAmount)
     {
-        if (!_isDead && !isBot)
+        if (photonView.IsMine && !_isDead && !isBot)
         {
             _score += defaultDamageAmount;
         }
-    }    
-    
+    }
+
     public void FlushScore()
     {
         _gpgsScript = FindObjectOfType<GpgsScript>();
@@ -631,7 +634,7 @@ public class BattleScript : MonoBehaviourPun
             {
                 // todo maybe should call RebornBot from RemoveBotFromRoom
                 StartCoroutine(RemoveBotFromRoom(new Random().Next(2, 5)));
-                
+
                 // todo move to RemoveBotFromRoom
                 // spawn other bot. should think about time
                 SpinningTopsGameManager gameManager = FindObjectOfType<SpinningTopsGameManager>();
