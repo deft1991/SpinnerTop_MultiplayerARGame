@@ -17,7 +17,8 @@ public class SpinningTopsGameManager : MonoBehaviourPunCallbacks
     public SpawnBoosterManager spawnBoosterManager;
 
     private float _timer = 0f;
-
+    private GpgsScript _gpgsScript;
+    
     // Start is called before the first frame update
     void Start()
     {
@@ -58,12 +59,39 @@ public class SpinningTopsGameManager : MonoBehaviourPunCallbacks
         {
             PhotonNetwork.LeaveRoom();
         }
-        else
-        {
-            SceneLoader.Instance.LoadScene("Scene_Lobby");
-        }
+
+        FlushScoreForOurSpinner();
+        AddScoreToLeaderBoard();
+
+        SceneLoader.Instance.LoadScene("Scene_Lobby");
 
         // call back to OnLeftRoom
+    }
+
+    /**
+     * Find out=r battle script and save scores
+     */
+    private static void FlushScoreForOurSpinner()
+    {
+        foreach (var battleScript in FindObjectsOfType<BattleScript>())
+        {
+            if (battleScript.photonView.IsMine && !battleScript.isBot)
+            {
+                battleScript.FlushScore();
+            }
+        }
+    }
+
+    /**
+     * Save scores to leaderboard
+     */
+    private void AddScoreToLeaderBoard()
+    {
+        _gpgsScript = FindObjectOfType<GpgsScript>();
+        if (Social.localUser.authenticated)
+        {
+            _gpgsScript.addScoreLeaderBoard();
+        }
     }
 
     #endregion
@@ -90,7 +118,7 @@ public class SpinningTopsGameManager : MonoBehaviourPunCallbacks
             uiInformText.text = "Joined to " + PhotonNetwork.CurrentRoom.Name
                                              + ". Waiting for other players...";
             // todo return bot spawning
-            StartCoroutine(SpawnBotAfterSeconds( Random.Range(5, 10)));
+            StartCoroutine(SpawnBotAfterSeconds(Random.Range(5, 10)));
         }
         else
         {

@@ -32,6 +32,10 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     void Start()
     {
         _gpgsScript = googlePlayService.GetComponent<GpgsScript>();
+        
+        // todo check it
+        DontDestroyOnLoad(googlePlayService);
+        
         _gpgsScript.LogIn();
         if (Social.localUser.authenticated)
         {

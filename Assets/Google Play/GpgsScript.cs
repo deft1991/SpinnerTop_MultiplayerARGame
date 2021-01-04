@@ -9,7 +9,7 @@ using UnityEngine.UI;
 
 public class GpgsScript : MonoBehaviour
 {
-    int points = 0;
+    long points = 0;
     public Text pointsText;
     public string leaderBoard, acheievementIDs;
 
@@ -36,8 +36,8 @@ public class GpgsScript : MonoBehaviour
                 ILocalUser instanceLocalUser = PlayGamesPlatform.Instance.localUser;
                 var userName = instanceLocalUser.userName;
                 Debug.Log("Login Sucess");
-                
-                
+
+                LoadScores();
             }
             else
             {
@@ -60,14 +60,14 @@ public class GpgsScript : MonoBehaviour
     /// </summary>
     public void addScoreLeaderBoard()
     {
+        Debug.Log("addScoreLeaderBoard: points = " + points);
         if (Social.localUser.authenticated)
         {
             Social.ReportScore(points, leaderBoard, (bool success) =>
             {
                 if (success)
                 {
-                    points = 0;
-                    pointsText.text = "Points: " + points;
+                    Debug.Log("Points: " + points);
                 }
                 else
                 {
@@ -100,10 +100,35 @@ public class GpgsScript : MonoBehaviour
     /// <summary>
     /// Adding points
     /// </summary>
-    public void morePoints()
+    public void MorePoints(long addPoints)
     {
-        points = points + 100;
-        pointsText.text = "Points: " + points;
+        points += addPoints;
+        Debug.Log("morePoints after addPoints: " + points);
+    }
+
+    /**
+     * Load scores from board
+     */
+    private void LoadScores()
+    {
+        Social.LoadScores(leaderBoard, scores =>
+        {
+            if (scores.Length > 0)
+            {
+                Debug.Log("Got " + scores.Length + " scores");
+                string myScores = "Leaderboard:\n";
+                foreach (IScore score in scores)
+                {
+                    myScores +="Your scores: " + "\t" + score.userID + " " + score.formattedValue + " " + score.date + "\n";
+                    points = score.value;
+                }
+
+                Debug.Log(myScores);
+                Debug.Log("My points: " + points);
+            }
+            else
+                Debug.Log("No scores loaded");
+        });
     }
 
     /// <summary>

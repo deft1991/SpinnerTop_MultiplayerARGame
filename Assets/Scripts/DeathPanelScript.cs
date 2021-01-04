@@ -7,6 +7,8 @@ using UnityEngine.UI;
 
 public class DeathPanelScript : MonoBehaviour
 {
+    private GpgsScript _gpgsScript;
+    
     // Start is called before the first frame update
     void Start()
     {
@@ -21,15 +23,19 @@ public class DeathPanelScript : MonoBehaviour
 
     public void OnClickNextOpponentButton()
     {
-        Debug.Log("OnClickNextOpponentButton");
+        _gpgsScript = FindObjectOfType<GpgsScript>();
         
-        SpinningTopsGameManager gameManager = FindObjectOfType<SpinningTopsGameManager>();
+        Debug.Log("OnClickNextOpponentButton");
         
         if (PhotonNetwork.InRoom)
         {
             PhotonNetwork.LeaveRoom();
         }
         
+        if (Social.localUser.authenticated)
+        {
+            _gpgsScript.addScoreLeaderBoard();
+        }
         SceneLoader.Instance.LoadScene("Scene_PlayerSelection");
     }
 
