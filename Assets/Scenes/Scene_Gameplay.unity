@@ -8232,10 +8232,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   boosterPrefabs:
-  - {fileID: 1953702689563642, guid: b8d047531e6c81240a8e756009712cfc, type: 3}
-  - {fileID: 1893084404789564, guid: 80fd2cce9b40b014c86e67da5c626713, type: 3}
-  - {fileID: 1142887363737176, guid: 90a8f0af0be89c04eb22578b3dae859c, type: 3}
-  - {fileID: 1587852896580244, guid: c28e458222ee79741b1996c6c37ad99f, type: 3}
+  - {fileID: 2730047126096986702, guid: 0f2bde39616954f82a14665e6c78f914, type: 3}
+  - {fileID: 1893084404789564, guid: 04257a54beaad4e5d8909d808c5447d3, type: 3}
+  - {fileID: 1297380411867567053, guid: 7b84011d54d6a486a998b62eb66f7983, type: 3}
+  - {fileID: 6903420976793425711, guid: 8af799c1ca7484c1f9e7b4160c926acf, type: 3}
   spawnPositions:
   - {fileID: 492917706}
   - {fileID: 497464147}

@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: -3794823851167560681}
   - component: {fileID: 4300986941191235999}
   m_Layer: 0
-  m_Name: Crate_0_10
+  m_Name: Crate_0_10 1
   m_TagString: Booster
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -117,10 +117,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2fe350cea9f94c73ae14f4e9393b35a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  boosterType: 1
-  increaseSpeed: 5000
+  boosterType: 0
+  increaseSpeed: 600
   pushSpeed: 500
-  damageAmount: 500
+  damageAmount: 400
   freezeTime: 500
 --- !u!1 &1714012953059628
 GameObject:
@@ -173,6 +173,7 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -286,6 +287,7 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1

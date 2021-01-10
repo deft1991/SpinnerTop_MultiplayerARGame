@@ -83,6 +83,7 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -183,6 +184,7 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -228,7 +230,7 @@ GameObject:
   - component: {fileID: 5474655317045889265}
   - component: {fileID: 2408554008931022797}
   m_Layer: 0
-  m_Name: Crate_0_4
+  m_Name: Crate_0_4 1
   m_TagString: Booster
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -330,8 +332,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2fe350cea9f94c73ae14f4e9393b35a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  boosterType: 3
-  increaseSpeed: 5000
+  boosterType: 0
+  increaseSpeed: 600
   pushSpeed: 500
-  damageAmount: 500
+  damageAmount: 400
   freezeTime: 500
