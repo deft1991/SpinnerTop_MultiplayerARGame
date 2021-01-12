@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package com.projectx.interop;
+
+option csharp_namespace = "ProjectX.Interop";
+
+import "messages/matchmake_query.proto";
+import "messages/matchmake_result.proto";
+
+service MatchmakingService {
+  rpc Matchmake (MatchmakeQuery) returns (stream MatchmakeResult) { }
+}
+

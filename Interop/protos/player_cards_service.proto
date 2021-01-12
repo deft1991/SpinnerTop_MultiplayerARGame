@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package com.projectx.interop;
+
+option csharp_namespace = "ProjectX.Interop";
+
+import "google/protobuf/empty.proto";
+
+import "messages/card.proto";
+
+service PlayerCardsService {
+  rpc GetCards (google.protobuf.Empty) returns (CardsArray) {}
+}

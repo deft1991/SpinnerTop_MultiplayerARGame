@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package com.projectx.interop;
+
+option csharp_namespace = "ProjectX.Interop";
+
+enum MatchmakeStatus {
+  GAME_NOT_FOUND = 0;
+  WAITING = 1;
+  COMPLETE = 2;
+  CLOSED = 3;
+  NO_AVAILABLE_SLOTS = 4;
+}

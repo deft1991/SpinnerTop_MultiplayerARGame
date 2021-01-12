@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.5</TargetFramework>
+    <AssemblyName>ProjectX-Interop</AssemblyName>
+    <RootNamespace>ProjectX-Interop</RootNamespace>
+    <Configurations>Release</Configurations>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Google.Protobuf" Version="3.8.0" />
+    <PackageReference Include="Grpc" Version="2.23.0" />
+    <PackageReference Include="Grpc.Tools" Version="2.23.0" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Protobuf Include="../protos/**/*.proto"
+              ProtoRoot="../protos"
+              OutputDir="$(ProjectDir)../../Client/Assets/ProjectX.Interop/Generated/%(RecursiveDir)" 
+              CompileOutputs="false">
+      <Link>%(RecursiveDir)%(FileName)%(Extension)</Link>
+    </Protobuf>
+
+    <Protobuf Update="**/messages/*.proto;**/enums/*.proto" GrpcServices="None" />
+  </ItemGroup>
+
+
+</Project>
